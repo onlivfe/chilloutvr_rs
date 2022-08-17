@@ -1,0 +1,29 @@
+[package]
+name = "chilloutvr"
+version = "0.0.0-alpha.0"
+edition = "2021"
+license = "MPL-2.0"
+authors = ["ljoonal"]
+description = "Unofficial rust types of ChilloutVR's API"
+repository = "https://git.ljoonal.xyz/ljoonal/chilloutvr_rs"
+documentation = "https://docs.rs/chilloutvr"
+keywords = ["cvr", "chilloutvr", "api", "rest", "websocket"]
+categories = ["api-bindings", "games"]
+
+include = ["src", "Cargo.toml", "LICENSE", "README.md"]
+
+[badges]
+maintenance = { status = "experimental" }
+
+[lib]
+name = "chilloutvr"
+path = "src/lib.rs"
+
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+serde_with = { version = "2.0.0", features = ["time_0_3"] }
+time = { version = "0.3", default-features = false, features = [
+	"serde-well-known",
+] }
+serde_json = { version = "1", optional = true }
+strum = { version = "0.24.1", features = ["derive"] }
