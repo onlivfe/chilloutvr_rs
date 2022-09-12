@@ -12,8 +12,8 @@ pub use worlds::*;
 mod invites;
 pub use invites::*;
 
-// TODO: Figure out how to bend the type system so that the Request / Response types
-// are conveniently mapped to the corresponding rust types.
+// TODO: Figure out how to bend the type system so that the Request / Response
+// types are conveniently mapped to the corresponding rust types.
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize, Serialize)]
 #[serde(rename_all = "PascalCase")]

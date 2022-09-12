@@ -1,10 +1,9 @@
+use crate::{AssetBase, FeaturedItem};
 use serde::{Deserialize, Serialize};
-
-use crate::{Asset, FeaturedItem};
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize, Serialize)]
 #[serde(rename_all = "PascalCase")]
-pub struct UserBaseInfo {
+pub struct UserBase {
 	pub id: String,
 	pub name: String,
 	pub image_url: String,
@@ -14,9 +13,21 @@ pub struct UserBaseInfo {
 #[serde(rename_all = "PascalCase")]
 pub struct UserDetails {
 	#[serde(flatten)]
-	pub base: UserBaseInfo,
+	pub base: UserBase,
 	pub rank: String,
 	pub featured_badge: FeaturedItem,
 	pub featured_group: FeaturedItem,
-	pub avatar: Asset,
+	pub avatar: AssetBase,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize, Serialize)]
+#[serde(rename_all = "PascalCase")]
+pub struct UserAuth {
+	pub username: String,
+	pub access_key: String,
+	pub user_id: String,
+	pub current_avatar: String,
+	pub current_home_world: String,
+	pub video_url_resolver_executable: String,
+	pub video_url_resolver_hashes: String,
 }
