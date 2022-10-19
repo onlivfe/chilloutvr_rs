@@ -29,23 +29,34 @@ platform:
   arch: amd64
 
 steps:
+- name: fetch
+  image: rust:latest
+  commands:
+  - cargo fetch
+
 - name: clippy
   image: rust:latest
   commands:
   - rustup component add clippy
   - cargo clippy --all-features
+  depends_on:
+  - fetch
 
 - name: fmt
   image: rust:latest
   commands:
   - rustup component add rustfmt
   - cargo fmt --check
+  depends_on:
+  - fetch
 
 - name: deny
   image: rust:latest
   commands:
   - cargo install --locked cargo-deny
   - cargo deny check
+  depends_on:
+  - fetch
 
 - name: build
   image: rust:latest
@@ -53,8 +64,6 @@ steps:
   - cargo build --all-features
   depends_on:
   - deny
-  - clippy
-  - fmt
 
 - name: test
   image: rust:latest
