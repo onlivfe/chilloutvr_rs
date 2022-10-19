@@ -6,7 +6,7 @@
 //!
 //! Please contact someone from the ABI team & ask for their permission before
 //! using the API, as it seems to be internal only as of writing this and very
-//! "don't touch". I've not tried what happens if you do contact the api, so
+//! "don't touch". I've not tried what happens if you do contact the API, so
 //! don't complaining if you get punished for touching it.
 
 #![cfg_attr(nightly, feature(doc_cfg))]

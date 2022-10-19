@@ -1,1 +1,2 @@
-//! The API client is on the TODO list
+//! An optional API client feature is planned,
+//! but it hasn't been implemented yet.

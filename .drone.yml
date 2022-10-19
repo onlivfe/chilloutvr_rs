@@ -7,14 +7,26 @@ platform:
   arch: amd64
 
 steps:
-- name: lint
-  pull: always
-  image: rustlang/rust:nightly
+- name: fetch
+  image: ljoonal/drone-rust-ci:nightly-alpine
   commands:
-  - rustup component add clippy || cargo install --git https://github.com/rust-lang/rust-clippy/ --force clippy
+  - cargo fetch
+
+- name: fmt
+  pull: always
+  image: ljoonal/drone-rust-ci:nightly-alpine
+  commands:
   - cargo fmt --check
+  depends_on:
+  - fetch
+
+- name: clippy
+  pull: always
+  image: ljoonal/drone-rust-ci:nightly-alpine
+  commands:
   - cargo clippy --all-features -Z unstable-options --future-incompat-report
-  failure: ignore
+  depends_on:
+  - fetch
 
 trigger:
   event:
@@ -30,43 +42,47 @@ platform:
 
 steps:
 - name: fetch
-  image: rust:latest
+  image: ljoonal/drone-rust-ci:alpine
   commands:
   - cargo fetch
 
-- name: clippy
-  image: rust:latest
+- name: spellcheck
+  image: ljoonal/drone-rust-ci:alpine
   commands:
-  - rustup component add clippy
+  - cargo spellcheck -m 1
+  depends_on:
+  - fetch
+
+- name: clippy
+  image: ljoonal/drone-rust-ci:alpine
+  commands:
   - cargo clippy --all-features
   depends_on:
   - fetch
 
 - name: fmt
-  image: rust:latest
+  image: ljoonal/drone-rust-ci:alpine
   commands:
-  - rustup component add rustfmt
   - cargo fmt --check
   depends_on:
   - fetch
 
 - name: deny
-  image: rust:latest
+  image: ljoonal/drone-rust-ci:alpine
   commands:
-  - cargo install --locked cargo-deny
-  - cargo deny check
+  - cargo deny --all-features check
   depends_on:
   - fetch
 
 - name: build
-  image: rust:latest
+  image: ljoonal/drone-rust-ci:alpine
   commands:
   - cargo build --all-features
   depends_on:
   - deny
 
 - name: test
-  image: rust:latest
+  image: ljoonal/drone-rust-ci:alpine
   commands:
   - cargo test --all-features
   depends_on:
