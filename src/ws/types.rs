@@ -12,9 +12,11 @@ use serde::{Deserialize, Serialize};
 	strum::AsRefStr,
 	strum::EnumVariantNames,
 )]
+#[non_exhaustive]
 pub enum ResponseType {
 	MenuPopup = 0,
 	HudMessage = 1,
+	PushNotification = 2,
 	OnlineFriends = 10,
 	Invites = 15,
 	RequestInvites = 20,
@@ -33,6 +35,7 @@ pub enum ResponseType {
 	strum::AsRefStr,
 	strum::EnumVariantNames,
 )]
+#[non_exhaustive]
 pub enum RequestType {
 	SelfOnline = 0,
 	FriendRequestSend = 5,
@@ -44,4 +47,10 @@ pub enum RequestType {
 	RequestInvite = 15,
 	RequestInviteAccept = 16,
 	RequestInviteDecline = 17,
+	BlockUser = 30,
+	UnBlockUser = 31,
+	GlobalMessage = 100,
+	UserMessage = 101,
+	SystemGlobalAnnouncement = 110,
+	SystemUserAnnouncement = 111,
 }

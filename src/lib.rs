@@ -23,28 +23,14 @@
 // My project my choice, tabs are literally made for indentation, spaces not.
 #![allow(clippy::tabs_in_doc_comments)]
 
-//pub const API_V1_HTTP_URL: &str = "https://api.abinteractive.net/v1";
-//pub const API_V1_WS_URL: &str = "https://api.abinteractive.net/v1/users/ws";
+pub const API_V1_HTTP_URL: &str = "https://api.abinteractive.net/v1";
+pub const API_V1_WS_URL: &str = "https://api.abinteractive.net/v1/users/ws";
+pub const API_V1_GAME_DATA: &str = "https://gateway.abi.network/v1/IGameData";
 
 pub mod ws;
 
-mod requests;
-pub use requests::*;
-
-mod users;
-pub use users::*;
-
-mod worlds;
-pub use worlds::*;
-
-mod instances;
-pub use instances::*;
-
-mod featureds;
-pub use featureds::*;
-
-mod assets;
-pub use assets::*;
+mod models;
+pub use models::*;
 
 #[cfg(feature = "api_client")]
 #[cfg_attr(nightly, doc(cfg(feature = "api_client")))]
@@ -52,9 +38,21 @@ pub mod api_client;
 
 use serde::{Deserialize, Serialize};
 
+/// Data for a HTTP request & response
+pub trait Queryable {
+	type ResponseType;
+
+	/// The URL of the request
+	fn url(&self) -> String;
+	/// Creates a body for the request
+	fn body(&self) -> Option<serde_json::Result<Vec<u8>>> {
+		None
+	}
+}
+
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize, Serialize)]
 #[serde(rename_all = "PascalCase")]
-pub struct Response<T> {
-	pub message: Option<String>,
-	pub data: Option<T>,
+enum ResponseDataWrapper<T> {
+	Message(String),
+	Data(T),
 }

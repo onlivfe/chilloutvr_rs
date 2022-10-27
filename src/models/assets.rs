@@ -21,6 +21,15 @@ pub struct AssetBaseWithTags {
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize, Serialize)]
 #[serde(rename_all = "PascalCase")]
+pub struct AssetBaseWithCategories {
+	pub id: String,
+	pub name: String,
+	pub image_url: String,
+	pub categories: Vec<String>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize, Serialize)]
+#[serde(rename_all = "PascalCase")]
 pub struct AssetFile {
 	pub asset: AssetBaseWithTags,
 	#[serde(rename = "FileId")]

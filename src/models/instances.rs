@@ -1,13 +1,35 @@
 use serde::{Deserialize, Serialize};
 
-use crate::{AssetBase, AssetBaseWithTags, UserBase, UserDetails};
+use crate::{AssetBase, AssetBaseWithTags, Queryable, UserBase, UserDetails};
+
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize, Serialize)]
+#[serde(rename_all = "lowercase")]
+pub enum InstancePrivacy {
+	Public,
+	FriendsOfFriends,
+	Friends,
+	Group,
+	EveryoneCanInvite,
+	OwnerMustInvite,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize, Serialize)]
+#[non_exhaustive]
+pub enum InstanceRegion {
+	#[serde(rename = "eh")]
+	Europe,
+	#[serde(rename = "us")]
+	UnitedStates,
+	#[serde(rename = "as")]
+	Asia,
+}
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize, Serialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct InstanceBase {
 	pub id: String,
 	pub name: String,
-	pub region: String,
+	pub region: InstanceRegion,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize, Serialize)]
@@ -28,7 +50,7 @@ pub struct InstanceDetails {
 pub struct ExtendedInstanceDetails {
 	#[serde(flatten)]
 	pub base: InstanceDetails,
-	pub instance_setting_privacy: String,
+	pub instance_setting_privacy: InstancePrivacy,
 	pub author: UserBase,
 	pub owner: UserDetails,
 	pub world: AssetBaseWithTags,
@@ -47,4 +69,17 @@ pub struct InstanceJoinResponse {
 	pub host: InstanceHost,
 	pub jqt: String,
 	pub world: AssetBase,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize, Serialize)]
+#[serde(rename_all = "PascalCase")]
+pub struct InstanceQuery {
+	pub instance_id: String,
+}
+
+impl Queryable for InstanceQuery {
+	type ResponseType = ExtendedInstanceDetails;
+	fn url(&self) -> String {
+		format!("{}/instances/{}", crate::API_V1_HTTP_URL, &self.instance_id)
+	}
 }

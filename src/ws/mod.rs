@@ -12,20 +12,40 @@ pub use worlds::*;
 mod invites;
 pub use invites::*;
 
-// TODO: Figure out how to bend the type system so that the Request / Response
-// types are conveniently mapped to the corresponding rust types.
+pub enum Error {
+	RequestError,
+	Serde,
+}
 
-#[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize, Serialize)]
-#[serde(rename_all = "PascalCase")]
-pub struct Request {
-	pub request_type: RequestType,
-	pub data: String,
+/// Data for a WS request
+pub trait Requestable {
+	const REQUEST_TYPE: RequestType;
+}
+
+/// Data for a WS response
+pub trait Listenable {
+	const RESPONSE_TYPE: ResponseType;
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize, Serialize)]
 #[serde(rename_all = "PascalCase")]
-pub struct Response {
+struct RequestWrapper<T> {
+	pub request_type: RequestType,
+	pub data: T,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize, Serialize)]
+#[serde(rename_all = "PascalCase")]
+enum ResponseDataWrapper<T> {
+	Message(String),
+	Data(T),
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize, Serialize)]
+#[serde(rename_all = "PascalCase")]
+struct ResponseWrapper<T> {
 	pub request_type: RequestType,
 	pub message: Option<String>,
-	pub data: Option<String>,
+	#[serde(flatten)]
+	pub data: ResponseDataWrapper<T>,
 }

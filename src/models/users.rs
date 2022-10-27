@@ -1,4 +1,4 @@
-use crate::{AssetBase, FeaturedItem};
+use crate::{AssetBase, FeaturedItem, Queryable};
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize, Serialize)]
@@ -20,6 +20,18 @@ pub struct UserDetails {
 	pub avatar: AssetBase,
 }
 
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+pub struct UserDetailsQuery {
+	pub user_id: String,
+}
+
+impl Queryable for UserDetailsQuery {
+	type ResponseType = UserDetails;
+	fn url(&self) -> String {
+		format!("{}/users/{}", crate::API_V1_HTTP_URL, &self.user_id)
+	}
+}
+
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize, Serialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct UserAuth {
@@ -30,4 +42,24 @@ pub struct UserAuth {
 	pub current_home_world: String,
 	pub video_url_resolver_executable: String,
 	pub video_url_resolver_hashes: String,
+	pub blocked_users: Vec<String>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize)]
+#[serde(rename_all = "PascalCase")]
+pub struct UserAuthRequest {
+	pub username: String,
+	pub password: String,
+	pub auth_type: String,
+}
+
+impl Queryable for UserAuthRequest {
+	type ResponseType = UserAuth;
+	fn url(&self) -> String {
+		format!("{}/users/auth", crate::API_V1_HTTP_URL)
+	}
+
+	fn body(&self) -> Option<serde_json::Result<Vec<u8>>> {
+		Some(serde_json::to_vec(self))
+	}
 }
