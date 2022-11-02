@@ -36,11 +36,11 @@ pub use models::*;
 #[cfg_attr(nightly, doc(cfg(feature = "api_client")))]
 pub mod api_client;
 
-use serde::{Deserialize, Serialize};
+use serde::{de::DeserializeOwned, Deserialize, Serialize};
 
 /// Data for a HTTP request & response
 pub trait Queryable {
-	type ResponseType;
+	type ResponseType: DeserializeOwned;
 
 	/// The URL of the request
 	fn url(&self) -> String;
