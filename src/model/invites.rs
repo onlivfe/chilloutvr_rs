@@ -1,4 +1,4 @@
-use crate::UserBase;
+use crate::model::UserBase;
 use serde::Serialize;
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize)]

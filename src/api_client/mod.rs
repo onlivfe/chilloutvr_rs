@@ -1,3 +1,5 @@
+//! An optional API client feature using `reqwest`
+
 use std::num::NonZeroU32;
 
 use governor::{

@@ -1,9 +1,6 @@
 mod invites;
 pub use invites::*;
 
-mod friends;
-pub use friends::*;
-
 mod users;
 pub use users::*;
 

@@ -27,10 +27,9 @@ pub const API_V1_HTTP_URL: &str = "https://api.abinteractive.net/v1";
 pub const API_V1_WS_URL: &str = "https://api.abinteractive.net/v1/users/ws";
 pub const API_V1_GAME_DATA: &str = "https://gateway.abi.network/v1/IGameData";
 
+pub mod model;
+pub mod query;
 pub mod ws;
-
-mod models;
-pub use models::*;
 
 #[cfg(feature = "api_client")]
 #[cfg_attr(nightly, doc(cfg(feature = "api_client")))]
@@ -40,6 +39,7 @@ use serde::{de::DeserializeOwned, Deserialize, Serialize};
 
 /// Data for a HTTP request & response
 pub trait Queryable {
+	/// The type of the expected OK response
 	type ResponseType: DeserializeOwned;
 
 	/// The URL of the request

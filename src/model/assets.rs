@@ -1,4 +1,4 @@
-use crate::UserBase;
+use crate::model::UserBase;
 use serde::{Deserialize, Serialize};
 use time::OffsetDateTime;
 

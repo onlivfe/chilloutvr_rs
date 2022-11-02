@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-use crate::{AssetBase, AssetBaseWithTags, Queryable, UserBase, UserDetails};
+use crate::model::{AssetBase, AssetBaseWithTags, UserBase, UserDetails};
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize, Serialize)]
 #[serde(rename_all = "lowercase")]
@@ -69,17 +69,4 @@ pub struct InstanceJoinResponse {
 	pub host: InstanceHost,
 	pub jqt: String,
 	pub world: AssetBase,
-}
-
-#[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize, Serialize)]
-#[serde(rename_all = "PascalCase")]
-pub struct InstanceQuery {
-	pub instance_id: String,
-}
-
-impl Queryable for InstanceQuery {
-	type ResponseType = ExtendedInstanceDetails;
-	fn url(&self) -> String {
-		format!("{}/instances/{}", crate::API_V1_HTTP_URL, &self.instance_id)
-	}
 }

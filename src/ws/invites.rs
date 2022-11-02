@@ -1,5 +1,7 @@
+//! Models for the currently unsupported WS API
+
 use super::{Listenable, ResponseType, WorldDetails};
-use crate::{InviteRequest, UserBase};
+use crate::model::{InviteRequest, UserBase};
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize, Serialize)]
