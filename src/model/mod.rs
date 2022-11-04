@@ -1,3 +1,14 @@
+use serde::{Deserialize, Serialize};
+
+#[derive(
+	Debug, Clone, PartialEq, Eq, Hash, Deserialize, Serialize, strum::EnumDiscriminants,
+)]
+#[serde(rename_all = "PascalCase")]
+pub enum ResponseDataWrapper<T> {
+	Message(String),
+	Data(T),
+}
+
 mod invites;
 pub use invites::*;
 

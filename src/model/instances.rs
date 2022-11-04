@@ -16,7 +16,7 @@ pub enum InstancePrivacy {
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize, Serialize)]
 #[non_exhaustive]
 pub enum InstanceRegion {
-	#[serde(rename = "eh")]
+	#[serde(rename = "eu")]
 	Europe,
 	#[serde(rename = "us")]
 	UnitedStates,
@@ -42,6 +42,7 @@ pub struct InstanceDetails {
 	pub world: AssetBase,
 	pub max_players: u32,
 	pub current_player_count: u32,
+	#[serde(default)]
 	pub members: Vec<UserBase>,
 }
 

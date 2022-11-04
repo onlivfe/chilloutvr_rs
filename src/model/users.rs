@@ -30,5 +30,6 @@ pub struct UserAuth {
 	pub current_home_world: String,
 	pub video_url_resolver_executable: String,
 	pub video_url_resolver_hashes: String,
+	#[serde(default)]
 	pub blocked_users: Vec<String>,
 }

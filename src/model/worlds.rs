@@ -3,6 +3,8 @@ use time::OffsetDateTime;
 
 use crate::model::{AssetBaseWithTags, UserBase};
 
+use super::InstanceRegion;
+
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize, Serialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct WorldDetails {
@@ -28,13 +30,14 @@ pub struct WorldInstance {
 	pub name: String,
 	pub player_count: u32,
 	pub max_player_count: u32,
-	pub region: String,
+	pub region: InstanceRegion,
 }
 
 #[serde_with::serde_as]
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize, Serialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct WorldDetailsResponse {
+	#[serde(default)]
 	#[serde_as(as = "serde_with::VecSkipError<_>")]
 	pub instances: Vec<WorldInstance>,
 	#[serde(flatten)]

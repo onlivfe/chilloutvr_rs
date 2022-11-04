@@ -41,6 +41,9 @@ version = "0.11"
 default-features = false
 features = ["json", "rustls-tls"]
 
+[dev-dependencies]
+tokio-test = "0.4.2"
+
 [package.metadata.docs.rs]
 features = ["api_client"]
 rustdoc-args = ["--cfg", "nightly"]

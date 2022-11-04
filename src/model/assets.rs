@@ -16,6 +16,7 @@ pub struct AssetBaseWithTags {
 	pub id: String,
 	pub name: String,
 	pub image_url: String,
+	#[serde(default)]
 	pub tags: Vec<String>,
 }
 
@@ -25,6 +26,7 @@ pub struct AssetBaseWithCategories {
 	pub id: String,
 	pub name: String,
 	pub image_url: String,
+	#[serde(default)]
 	pub categories: Vec<String>,
 }
 

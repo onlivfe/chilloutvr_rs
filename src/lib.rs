@@ -35,7 +35,7 @@ pub mod ws;
 #[cfg_attr(nightly, doc(cfg(feature = "api_client")))]
 pub mod api_client;
 
-use serde::{de::DeserializeOwned, Deserialize, Serialize};
+use serde::de::DeserializeOwned;
 
 /// Data for a HTTP request & response
 pub trait Queryable {
@@ -48,11 +48,4 @@ pub trait Queryable {
 	fn body(&self) -> Option<serde_json::Result<Vec<u8>>> {
 		None
 	}
-}
-
-#[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize, Serialize)]
-#[serde(rename_all = "PascalCase")]
-enum ResponseDataWrapper<T> {
-	Message(String),
-	Data(T),
 }
