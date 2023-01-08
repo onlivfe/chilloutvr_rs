@@ -1,8 +1,8 @@
 # ChilloutVR API in rust
 
-<img align="right" width="256" height="256" src="https://git.ljoonal.xyz/ljoonal/chilloutvr_rs/raw/logo.png"/>
+<img align="right" width="256" height="256" src="https://github.com/onlivfe/chilloutvr_rs/raw/main/logo.png"/>
 
-[![License](https://img.shields.io/crates/l/chilloutvr.svg)](https://git.ljoonal.xyz/ljoonal/chilloutvr_rs/src/LICENSE)
+[![License](https://img.shields.io/crates/l/chilloutvr.svg)](https://github.com/onlivfe/chilloutvr_rs/src/LICENSE)
 [![Crates.io](https://img.shields.io/crates/v/chilloutvr.svg)](https://crates.io/crates/chilloutvr)
 [![Docs](https://docs.rs/chilloutvr/badge.svg)](https://docs.rs/crate/chilloutvr/)
 
