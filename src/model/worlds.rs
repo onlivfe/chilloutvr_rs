@@ -6,7 +6,7 @@ use crate::model::{AssetBaseWithTags, UserBase};
 use super::InstanceRegion;
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize, Serialize)]
-#[serde(rename_all = "PascalCase")]
+#[serde(rename_all = "camelCase")]
 pub struct WorldDetails {
 	#[serde(flatten)]
 	pub base: AssetBaseWithTags,
@@ -22,7 +22,7 @@ pub struct WorldDetails {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize, Serialize)]
-#[serde(rename_all = "PascalCase")]
+#[serde(rename_all = "camelCase")]
 pub struct WorldInstance {
 	#[serde(default)]
 	pub id: String,
@@ -35,7 +35,7 @@ pub struct WorldInstance {
 
 #[serde_with::serde_as]
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize, Serialize)]
-#[serde(rename_all = "PascalCase")]
+#[serde(rename_all = "camelCase")]
 pub struct WorldDetailsResponse {
 	#[serde(default)]
 	#[serde_as(as = "serde_with::VecSkipError<_>")]

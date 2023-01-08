@@ -5,7 +5,7 @@ use crate::model::{InviteRequest, UserBase};
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize, Serialize)]
-#[serde(rename_all = "PascalCase")]
+#[serde(rename_all = "camelCase")]
 pub struct Invite {
 	pub id: String,
 	pub user: UserBase,
@@ -17,7 +17,7 @@ pub struct Invite {
 
 #[serde_with::serde_as]
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize, Serialize)]
-#[serde(rename_all = "PascalCase")]
+#[serde(rename_all = "camelCase")]
 pub struct SkipInviteErrors(#[serde_as(as = "serde_with::VecSkipError<_>")] Vec<Invite>);
 
 impl Listenable for Vec<Invite> {

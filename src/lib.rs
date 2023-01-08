@@ -23,9 +23,9 @@
 // My project my choice, tabs are literally made for indentation, spaces not.
 #![allow(clippy::tabs_in_doc_comments)]
 
-pub const API_V1_HTTP_URL: &str = "https://api.abinteractive.net/v1";
-pub const API_V1_WS_URL: &str = "https://api.abinteractive.net/v1/users/ws";
-pub const API_V1_GAME_DATA: &str = "https://gateway.abi.network/v1/IGameData";
+pub const API_V1_HTTP_URL: &str = "https://api.abinteractive.net/1";
+pub const API_V1_WS_URL: &str = "https://api.abinteractive.net/1/users/ws";
+pub const API_V1_GAME_DATA: &str = "https://gateway.abi.network/1/IGameData";
 
 pub mod model;
 pub mod query;
@@ -47,5 +47,11 @@ pub trait Queryable {
 	/// Creates a body for the request
 	fn body(&self) -> Option<serde_json::Result<Vec<u8>>> {
 		None
+	}
+
+	/// If the response type is wrapped in
+	/// [`chilloutvr::model::ResponseDataWrapper`]
+	fn wrapped_response(&self) -> bool {
+		true
 	}
 }

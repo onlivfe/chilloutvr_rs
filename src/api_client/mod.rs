@@ -12,12 +12,18 @@ use governor::{
 use reqwest::{header::HeaderMap, Client};
 use serde::{Deserialize, Serialize};
 
-use crate::{model::ResponseDataWrapper, Queryable};
+use crate::{model::{ResponseDataWrapper, UserAuth}, Queryable};
 
 #[derive(Serialize, Deserialize)]
 pub struct ApiAuth {
 	pub username: String,
 	pub access_key: String,
+}
+
+impl From<UserAuth> for ApiAuth {
+	fn from(user_auth: UserAuth) -> Self {
+		ApiAuth { access_key: user_auth.access_key, username: user_auth.username }
+	}
 }
 
 impl std::fmt::Debug for ApiAuth {
@@ -94,7 +100,7 @@ impl CVR {
 	pub async fn query<T: Queryable + Send>(
 		&self,
 		queryable: T,
-	) -> Result<ResponseDataWrapper<T::ResponseType>, ApiError> {
+	) -> Result<T::ResponseType, ApiError> {
 		let mut request = self.client.get(queryable.url());
 		if let Some(body) = queryable.body() {
 			request = request.body(body?);
@@ -104,7 +110,10 @@ impl CVR {
 		let response = request.send().await?.error_for_status()?;
 		// TODO: Figure out if there are any extra rate limit headers to respect
 
-		let val: ResponseDataWrapper<T::ResponseType> = response.json().await?;
+		let val: T::ResponseType = match queryable.wrapped_response() {
+			true => response.json::<ResponseDataWrapper<T::ResponseType>>().await?.data,
+			false => response.json().await?,
+		};
 
 		Ok(val)
 	}

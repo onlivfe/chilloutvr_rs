@@ -2,7 +2,7 @@ use crate::model::{AssetBase, FeaturedItem};
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize, Serialize)]
-#[serde(rename_all = "PascalCase")]
+#[serde(rename_all = "camelCase")]
 pub struct UserBase {
 	pub id: String,
 	pub name: String,
@@ -10,7 +10,7 @@ pub struct UserBase {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize, Serialize)]
-#[serde(rename_all = "PascalCase")]
+#[serde(rename_all = "camelCase")]
 pub struct UserDetails {
 	#[serde(flatten)]
 	pub base: UserBase,
@@ -21,7 +21,7 @@ pub struct UserDetails {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize, Serialize)]
-#[serde(rename_all = "PascalCase")]
+#[serde(rename_all = "camelCase")]
 pub struct UserAuth {
 	pub username: String,
 	pub access_key: String,

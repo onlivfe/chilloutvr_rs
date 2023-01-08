@@ -28,21 +28,21 @@ pub trait Listenable {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize, Serialize)]
-#[serde(rename_all = "PascalCase")]
+#[serde(rename_all = "camelCase")]
 struct RequestWrapper<T> {
 	pub request_type: RequestType,
 	pub data: T,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize, Serialize)]
-#[serde(rename_all = "PascalCase")]
+#[serde(rename_all = "camelCase")]
 enum ResponseDataWrapper<T> {
 	Message(String),
 	Data(T),
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize, Serialize)]
-#[serde(rename_all = "PascalCase")]
+#[serde(rename_all = "camelCase")]
 struct ResponseWrapper<T> {
 	pub request_type: RequestType,
 	pub message: Option<String>,

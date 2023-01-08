@@ -1,12 +1,11 @@
 use serde::{Deserialize, Serialize};
 
-#[derive(
-	Debug, Clone, PartialEq, Eq, Hash, Deserialize, Serialize, strum::EnumDiscriminants,
-)]
-#[serde(rename_all = "PascalCase")]
-pub enum ResponseDataWrapper<T> {
-	Message(String),
-	Data(T),
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ResponseDataWrapper<T> {
+	#[serde(default)]
+	pub message: String,
+	pub data: T,
 }
 
 mod invites;

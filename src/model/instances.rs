@@ -25,7 +25,7 @@ pub enum InstanceRegion {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize, Serialize)]
-#[serde(rename_all = "PascalCase")]
+#[serde(rename_all = "camelCase")]
 pub struct InstanceBase {
 	pub id: String,
 	pub name: String,
@@ -33,7 +33,7 @@ pub struct InstanceBase {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize, Serialize)]
-#[serde(rename_all = "PascalCase")]
+#[serde(rename_all = "camelCase")]
 pub struct InstanceDetails {
 	#[serde(flatten)]
 	pub base: InstanceBase,
@@ -47,7 +47,7 @@ pub struct InstanceDetails {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize, Serialize)]
-#[serde(rename_all = "PascalCase")]
+#[serde(rename_all = "camelCase")]
 pub struct ExtendedInstanceDetails {
 	#[serde(flatten)]
 	pub base: InstanceDetails,
@@ -58,14 +58,14 @@ pub struct ExtendedInstanceDetails {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize, Serialize)]
-#[serde(rename_all = "PascalCase")]
+#[serde(rename_all = "camelCase")]
 pub struct InstanceHost {
 	pub fqdn: String,
 	pub port: u32,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize, Serialize)]
-#[serde(rename_all = "PascalCase")]
+#[serde(rename_all = "camelCase")]
 pub struct InstanceJoinResponse {
 	pub host: InstanceHost,
 	pub jqt: String,

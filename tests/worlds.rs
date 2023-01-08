@@ -8,12 +8,7 @@ mod common;
 fn get_worlds() -> Result<(), chilloutvr::api_client::ApiError> {
 	let query =
 		chilloutvr::query::WorldListQuery { category: "Official Worlds".to_string() };
-	let result = tokio_test::block_on(common::api_client().query(query))?;
-
-	let worlds = match result {
-		ResponseDataWrapper::Data(v) => v,
-		_ => panic!("expected data, got {:?}", result),
-	};
+	let worlds = tokio_test::block_on(common::api_client().query(query))?;
 
 	let first_world = match worlds.first() {
 		Some(world) => world,

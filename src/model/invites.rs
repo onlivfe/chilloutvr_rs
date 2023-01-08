@@ -2,7 +2,7 @@ use crate::model::UserBase;
 use serde::Serialize;
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize)]
-#[serde(rename_all = "PascalCase")]
+#[serde(rename_all = "camelCase")]
 pub struct InviteRequest {
 	pub id: String,
 	pub sender: UserBase,

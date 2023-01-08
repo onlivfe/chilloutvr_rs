@@ -17,6 +17,41 @@ Though note that the models will most likely change in breaking ways.
 
 Once the API is stabilized a bit more and it's usage allowed, an API client is planned to be implemented.
 
+## Testing
+
+The integration tests contact the live API.
+That's why they are ignored by default.
+
+Some of them also require authentication.
+
+Sadly not all the things can even be reliably tested without creating a mock API.
+Which in turn defeats the purpose of the tests in the first place.
+
+### Creating a user session manually
+
+You can generate a `user-sesion.json` file with logging in via curl for example:
+
+```shell
+curl --request POST \
+  --url https://api.abinteractive.net/1/users/auth \
+  --header 'Content-Type: application/json' \
+  --header 'Accept: application/json' \
+  --data '{
+  "username": "email@Address",
+  "password": "pa$$word",
+  "authType": "LoginCredentials"
+}' > user-session.json
+```
+
+### Running ignored tests
+
+Make sure that you've got:
+
+- an internet connection
+- a valid `user-sesion.json`
+
+Then just run `cargo test --all-features -- --ignored`
+
 ## License
 
 Note that the license is `MPL-2.0` instead of the more common `MIT OR Apache-2.0`.

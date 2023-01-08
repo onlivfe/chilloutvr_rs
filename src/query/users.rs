@@ -15,11 +15,19 @@ impl Queryable for UserDetails {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize)]
-#[serde(rename_all = "PascalCase")]
+#[serde(rename_all = "camelCase")]
+pub enum AuthType {
+	LoginProfile = 1,
+	LoginCredentials,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct UserAuthRequest {
+	/// Actually an email
 	pub username: String,
 	pub password: String,
-	pub auth_type: String,
+	pub auth_type: AuthType,
 }
 
 impl Queryable for UserAuthRequest {

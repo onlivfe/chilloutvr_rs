@@ -3,7 +3,7 @@ use serde::{Deserialize, Serialize};
 use super::{Listenable, ResponseType};
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize, Serialize)]
-#[serde(rename_all = "PascalCase")]
+#[serde(rename_all = "camelCase")]
 pub struct UserOnlineStatusChange {
 	pub id: String,
 	pub is_online: bool,
@@ -11,7 +11,7 @@ pub struct UserOnlineStatusChange {
 
 #[serde_with::serde_as]
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize, Serialize)]
-#[serde(rename_all = "PascalCase")]
+#[serde(rename_all = "camelCase")]
 pub struct SkipErrors(
 	#[serde_as(as = "serde_with::VecSkipError<_>")] Vec<UserOnlineStatusChange>,
 );
