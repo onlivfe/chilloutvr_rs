@@ -54,8 +54,7 @@ jobs:
         uses: actions-rs/cargo@v1
         with:
           command: clippy
-          args: --all-features -Z unstable-options --f
-uture-incompat-report -- -D warnings
+          args: --all-features -Z unstable-options --future-incompat-report -- -D warnings
   test:
     name: Test
     runs-on: ubuntu-latest
