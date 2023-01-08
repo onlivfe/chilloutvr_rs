@@ -100,13 +100,16 @@ jobs:
   #       uses: orf/cargo-bloat-action@v1
   #       with:
   #         token: ${{ secrets.GITHUB_TOKEN }}
+
+  # Credit to https://github.com/paritytech/smoldot/blob/main/.github/workflows/ci.yml
   spellcheck:
     name: Spellcheck
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
-    - uses: actions-rs/install@v0.1
+    - run: sudo apt-get update && sudo apt install -y libclang-dev  # Required by cargo-spellcheck
+    - uses: baptiste0928/cargo-install@v1  # This action ensures that the compilation is cached.
       with:
         crate: cargo-spellcheck
-        version: latest
-    - run: cargo spellcheck check
+        version: 0.11.2
+    - run: cargo spellcheck -m 99
