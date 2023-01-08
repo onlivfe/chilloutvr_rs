@@ -36,11 +36,11 @@ jobs:
       - name: Checkout sources
         uses: actions/checkout@v2
 
-      - name: Install stable toolchain
+      - name: Install nightly toolchain
         uses: actions-rs/toolchain@v1
         with:
           profile: minimal
-          toolchain: stable
+          toolchain: nightly
           override: true
           components: rustfmt, clippy
 
@@ -54,7 +54,8 @@ jobs:
         uses: actions-rs/cargo@v1
         with:
           command: clippy
-          args: -- -D warnings
+          args: --all-features -Z unstable-options --f
+uture-incompat-report -- -D warnings
   test:
     name: Test
     runs-on: ubuntu-latest
@@ -74,6 +75,7 @@ jobs:
         continue-on-error: true  # WARNING: only for this example, remove it!
         with:
           command: test
+          args: --all-features
   build:
     name: Build
     runs-on: ubuntu-latest
@@ -86,16 +88,22 @@ jobs:
         with:
           command: build
           args: --all-features
-  bloat:
-    name: Bloat
+  # bloat:
+  #   name: Bloat
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@master
+  #     - name: Install Rust
+  #       uses: actions-rs/toolchain@v1
+  #       with:
+  #         toolchain: stable
+  #     - name: Run cargo bloat
+  #       uses: orf/cargo-bloat-action@v1
+  #       with:
+  #         token: ${{ secrets.GITHUB_TOKEN }}
+  spellcheck:
+    name: Spellcheck
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@master
-      - name: Install Rust
-        uses: actions-rs/toolchain@v1
-        with:
-          toolchain: stable
-      - name: Run cargo bloat
-        uses: orf/cargo-bloat-action@v1
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+      - uses: actions/checkout@v1
+      - uses: mickare/cargo-spellcheck-action@v0.0.3
