@@ -1,6 +1,5 @@
 #dev_comments = true
 
 [Hunspell]
-use_builtin = true
 search_dirs = ["."]
 extra_dictionaries = ["extra.dic"]
