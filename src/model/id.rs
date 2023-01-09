@@ -1,4 +1,4 @@
-//! Wrappers for ChilloutVR IDs.
+//! Wrappers for CVR IDs.
 //!
 //! Wrapping them IDs in newtypes makes sure you aren't trying to accidentally
 //! compare different types of CVR IDs with each other like so:
@@ -23,7 +23,7 @@ macro_rules! add_id {
 		$(#[$meta:meta])*
 		$name:ident
 	) => {
-		#[doc = concat!("An ID of a ChilloutVR ", stringify!($name))]
+		#[doc = concat!("An ID of a CVR ", stringify!($name))]
 		///
 		/// # Example usage
 		///
@@ -118,7 +118,7 @@ add_id!(Invite);
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash, Deserialize, Serialize)]
 #[serde(untagged)]
-/// Any of the ChilloutVR IDs
+/// Any of the CVR IDs
 ///
 /// # Example usage
 ///

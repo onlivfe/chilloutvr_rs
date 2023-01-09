@@ -1,5 +1,3 @@
-use serde::Deserialize;
-
 use crate::{model::SearchResults, Queryable};
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]

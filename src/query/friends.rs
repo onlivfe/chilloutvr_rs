@@ -1,7 +1,4 @@
-use crate::{
-	model::{AssetBase, Friends},
-	Queryable,
-};
+use crate::{model::Friends, Queryable};
 
 #[derive(Default, Debug, Clone)]
 pub struct FriendList();

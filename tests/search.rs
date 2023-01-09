@@ -1,6 +1,6 @@
 #![cfg(feature = "api_client")]
 
-use chilloutvr::model::{id, ResponseDataWrapper};
+use chilloutvr::model::id;
 mod common;
 
 #[test]

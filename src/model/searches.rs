@@ -1,6 +1,5 @@
 use serde::{Deserialize, Serialize};
 use serde_with::serde_as;
-use time::OffsetDateTime;
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash, Deserialize, Serialize)]
 #[serde(tag = "type", content = "id")]
@@ -20,9 +19,9 @@ impl From<SearchResultId> for crate::model::id::Any {
 	fn from(value: SearchResultId) -> Self {
 		match value {
 			SearchResultId::User(v) => v.into(),
-			SearchResultId::Avatar(v) => v.into(),
-			SearchResultId::Prop(v) => v.into(),
-			SearchResultId::World(v) => v.into(),
+			SearchResultId::Avatar(v)
+			| SearchResultId::Prop(v)
+			| SearchResultId::World(v) => v.into(),
 		}
 	}
 }

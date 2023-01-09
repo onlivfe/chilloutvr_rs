@@ -11,7 +11,7 @@ fn friend_requests() -> Result<(), chilloutvr::api_client::ApiError> {
 
 	dbg!(&results);
 
-	assert!(results.0.len() >= 1);
+	assert!(!results.0.is_empty());
 
 	let first_request = match results.0.first() {
 		Some(result) => result,
@@ -34,7 +34,7 @@ fn friends() -> Result<(), chilloutvr::api_client::ApiError> {
 
 	dbg!(&results);
 
-	assert!(results.0.len() >= 1);
+	assert!(!results.0.is_empty());
 
 	let first_friend = match results.0.first() {
 		Some(result) => result,

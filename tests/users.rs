@@ -1,6 +1,6 @@
 #![cfg(feature = "api_client")]
 
-use chilloutvr::model::{id, ResponseDataWrapper};
+use chilloutvr::model::id;
 mod common;
 
 #[test]
@@ -13,9 +13,9 @@ fn user() -> Result<(), chilloutvr::api_client::ApiError> {
 	dbg!(&user);
 
 	assert_eq!(user.base.id, user_id);
-	assert!(user.avatar.name.len() > 0);
-	assert!(user.featured_badge.name.len() > 0);
-	assert!(user.featured_group.image.len() > 0);
+	assert!(!user.avatar.name.is_empty());
+	assert!(!user.featured_badge.name.is_empty());
+	assert!(!user.featured_group.image.is_empty());
 
 	Ok(())
 }
