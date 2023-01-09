@@ -7,11 +7,11 @@ use serde::{Deserialize, Serialize};
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Invite {
-	pub id: String,
+	pub id: crate::model::id::Invite,
 	pub user: UserBase,
 	pub world: WorldDetails,
-	pub instance_id: String,
-	pub receiver_id: String,
+	pub instance_id: crate::model::id::Instance,
+	pub receiver_id: crate::model::id::User,
 	pub instance_name: String,
 }
 

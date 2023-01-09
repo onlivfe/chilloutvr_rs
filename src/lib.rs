@@ -23,9 +23,11 @@
 // My project my choice, tabs are literally made for indentation, spaces not.
 #![allow(clippy::tabs_in_doc_comments)]
 
+// ...Yes, mixed `/1/` and `/v1/`....
+// ABI I love you, but plz, this is next level sinning with your API
 pub const API_V1_HTTP_URL: &str = "https://api.abinteractive.net/1";
 pub const API_V1_WS_URL: &str = "https://api.abinteractive.net/1/users/ws";
-pub const API_V1_GAME_DATA: &str = "https://gateway.abi.network/1/IGameData";
+pub const API_V1_GAME_DATA: &str = "https://gateway.abi.network/v1/IGameData";
 
 pub mod model;
 pub mod query;

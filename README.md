@@ -50,7 +50,14 @@ Make sure that you've got:
 - an internet connection
 - a valid `user-sesion.json`
 
-Then just run `cargo test --all-features -- --ignored`
+Then just run the tests;
+
+```sh
+# A specific test with output logging
+cargo test --all-features friend_requests -- --exact --ignored --nocapture
+# All tests
+cargo test --all-features -- --ignored
+```
 
 ## License
 

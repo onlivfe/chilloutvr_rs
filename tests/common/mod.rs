@@ -1,14 +1,17 @@
 #![cfg(feature = "api_client")]
 // Something's funky with checking if these are used or not.
 #![allow(dead_code)]
-use chilloutvr::{api_client::{ApiAuth, CVR}, model::{UserAuth, ResponseDataWrapper}};
+use chilloutvr::{
+	api_client::{ApiAuth, CVR},
+	model::{ResponseDataWrapper, UserAuth},
+};
 
 const USER_AGENT: &str = concat!(
 	env!("CARGO_PKG_NAME"),
 	env!("CARGO_PKG_VERSION"),
 	" (",
 	env!("CARGO_PKG_REPOSITORY"),
-	")",
+	") - tests",
 );
 
 pub fn api_client() -> CVR {
@@ -16,7 +19,8 @@ pub fn api_client() -> CVR {
 		&std::fs::read("user-auth.json")
 			.expect("must have a prepared `user-auth.json` file for live API testing"),
 	)
-	.expect("`user-auth.json` file to parse into user auth").data;
+	.expect("`user-auth.json` file to parse into user auth")
+	.data;
 
 	assert!(!user_auth.username.is_empty());
 	assert!(user_auth.access_key.len() > 20);

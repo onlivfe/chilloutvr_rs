@@ -12,7 +12,10 @@ use governor::{
 use reqwest::{header::HeaderMap, Client};
 use serde::{Deserialize, Serialize};
 
-use crate::{model::{ResponseDataWrapper, UserAuth}, Queryable};
+use crate::{
+	model::{ResponseDataWrapper, UserAuth},
+	Queryable,
+};
 
 #[derive(Serialize, Deserialize)]
 pub struct ApiAuth {
@@ -30,7 +33,7 @@ impl std::fmt::Debug for ApiAuth {
 	fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
 		f.debug_struct("ApiAuth")
 			.field("username", &self.username)
-			.field("access_key", &"[redacted]")
+			.field("access_key", &"*****")
 			.finish()
 	}
 }
@@ -110,11 +113,29 @@ impl CVR {
 		let response = request.send().await?.error_for_status()?;
 		// TODO: Figure out if there are any extra rate limit headers to respect
 
-		let val: T::ResponseType = match queryable.wrapped_response() {
-			true => response.json::<ResponseDataWrapper<T::ResponseType>>().await?.data,
-			false => response.json().await?,
-		};
+		#[cfg(feature = "debug")]
+		{
+			let text = response.text().await?;
+			dbg!(&text);
+			let val: T::ResponseType = match queryable.wrapped_response() {
+				true => {
+					serde_json::from_str::<ResponseDataWrapper<T::ResponseType>>(&text)?
+						.data
+				}
+				false => serde_json::from_str(&text)?,
+			};
+			Ok(val)
+		}
+		#[cfg(not(feature = "debug"))]
+		{
+			let val: T::ResponseType = match queryable.wrapped_response() {
+				true => {
+					response.json::<ResponseDataWrapper<T::ResponseType>>().await?.data
+				}
+				false => response.json().await?,
+			};
 
-		Ok(val)
+			Ok(val)
+		}
 	}
 }

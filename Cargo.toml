@@ -23,6 +23,9 @@ path = "src/lib.rs"
 
 default = []
 api_client = ["reqwest", "governor"]
+# By default we allows deserializing some things partially even with errors.
+# Like skipping array entries with errors, which is not wanted for tests though.
+debug = []
 
 [dependencies]
 serde = { version = "1.0", features = ["derive"] }

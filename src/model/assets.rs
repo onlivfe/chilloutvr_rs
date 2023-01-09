@@ -5,7 +5,7 @@ use time::OffsetDateTime;
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct AssetBase {
-	pub id: String,
+	pub id: crate::model::id::Asset,
 	pub name: String,
 	pub image_url: String,
 }
@@ -13,7 +13,7 @@ pub struct AssetBase {
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct AssetBaseWithTags {
-	pub id: String,
+	pub id: crate::model::id::Asset,
 	pub name: String,
 	pub image_url: String,
 	#[serde(default)]
@@ -23,7 +23,7 @@ pub struct AssetBaseWithTags {
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct AssetBaseWithCategories {
-	pub id: String,
+	pub id: crate::model::id::Asset,
 	pub name: String,
 	pub image_url: String,
 	#[serde(default)]
@@ -34,26 +34,27 @@ pub struct AssetBaseWithCategories {
 #[serde(rename_all = "camelCase")]
 pub struct AssetFile {
 	pub asset: AssetBaseWithTags,
-	#[serde(rename = "FileId")]
-	pub id: String,
-	#[serde(rename = "FileSize")]
+	#[serde(rename = "fileId")]
+	pub id: crate::model::id::Asset,
+	#[serde(rename = "fileSize")]
 	pub size: String,
-	#[serde(rename = "FileKey")]
+	#[serde(rename = "fileKey")]
 	pub key: String,
-	#[serde(rename = "FileHash")]
+	#[serde(rename = "fileHash")]
 	pub hash: String,
-	#[serde(rename = "FileLocation")]
+	#[serde(rename = "fileLocation")]
 	pub location: String,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct AvatarDetails {
-	pub id: String,
+	pub id: crate::model::id::Asset,
 	pub name: String,
 	pub description: String,
 	pub image_url: String,
-	pub author_guid: String,
+	#[serde(rename = "authorGuid")]
+	pub author_id: crate::model::id::User,
 	#[serde(default)]
 	pub categories: Vec<String>,
 }

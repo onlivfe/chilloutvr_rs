@@ -10,6 +10,7 @@ use super::InstanceRegion;
 pub struct WorldDetails {
 	#[serde(flatten)]
 	pub base: AssetBaseWithTags,
+	#[serde(default)]
 	pub description: String,
 	pub user: UserBase,
 	pub uploaded_at: OffsetDateTime,
@@ -24,8 +25,7 @@ pub struct WorldDetails {
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct WorldInstance {
-	#[serde(default)]
-	pub id: String,
+	pub id: crate::model::id::Instance,
 	#[serde(default)]
 	pub name: String,
 	pub player_count: u32,

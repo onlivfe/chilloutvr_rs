@@ -1,5 +1,5 @@
 use crate::{
-	model::{AssetBase, AssetBaseWithCategories},
+	model::{AssetBase, Friends},
 	Queryable,
 };
 
@@ -7,7 +7,7 @@ use crate::{
 pub struct FriendList();
 
 impl Queryable for FriendList {
-	type ResponseType = AssetBaseWithCategories;
+	type ResponseType = Friends;
 	fn url(&self) -> String {
 		format!("{}/friends", crate::API_V1_HTTP_URL)
 	}
@@ -17,7 +17,7 @@ impl Queryable for FriendList {
 pub struct FriendRequests();
 
 impl Queryable for FriendRequests {
-	type ResponseType = AssetBase;
+	type ResponseType = crate::model::FriendRequests;
 	fn url(&self) -> String {
 		format!("{}/friends/requests", crate::API_V1_HTTP_URL)
 	}

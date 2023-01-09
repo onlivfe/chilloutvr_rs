@@ -4,7 +4,7 @@ use crate::{model::UserAuth, Queryable};
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct UserDetails {
-	pub user_id: String,
+	pub user_id: crate::model::id::User,
 }
 
 impl Queryable for UserDetails {
@@ -21,13 +21,23 @@ pub enum AuthType {
 	LoginCredentials,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize)]
+#[derive(Clone, PartialEq, Eq, Hash, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct UserAuthRequest {
 	/// Actually an email
 	pub username: String,
 	pub password: String,
 	pub auth_type: AuthType,
+}
+
+impl std::fmt::Debug for UserAuthRequest {
+	fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+		f.debug_struct("UserAuthRequest")
+			.field("username", &self.username)
+			.field("password", &"*****")
+			.field("auth_type", &self.auth_type)
+			.finish()
+	}
 }
 
 impl Queryable for UserAuthRequest {

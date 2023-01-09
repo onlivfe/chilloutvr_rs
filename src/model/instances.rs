@@ -26,17 +26,10 @@ pub enum InstanceRegion {
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
-pub struct InstanceBase {
-	pub id: String,
+pub struct InstanceDetails {
+	pub id: crate::model::id::Instance,
 	pub name: String,
 	pub region: InstanceRegion,
-}
-
-#[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize, Serialize)]
-#[serde(rename_all = "camelCase")]
-pub struct InstanceDetails {
-	#[serde(flatten)]
-	pub base: InstanceBase,
 	pub game_mode_id: String,
 	pub game_mode_name: String,
 	pub world: AssetBase,
@@ -68,6 +61,6 @@ pub struct InstanceHost {
 #[serde(rename_all = "camelCase")]
 pub struct InstanceJoinResponse {
 	pub host: InstanceHost,
-	pub jqt: String,
+	pub jwt: String,
 	pub world: AssetBase,
 }

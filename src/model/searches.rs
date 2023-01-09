@@ -1,22 +1,44 @@
 use serde::{Deserialize, Serialize};
+use serde_with::serde_as;
 use time::OffsetDateTime;
 
-#[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize, Serialize)]
-pub struct SearchResult {
-	#[serde(rename = "ResultId")]
-	pub id: String,
-	#[serde(rename = "ResultName")]
-	pub name: String,
-	#[serde(rename = "ResultImageUrl")]
-	pub image_url: String,
-	#[serde(rename = "ResultDate")]
-	pub date: OffsetDateTime,
-	#[serde(rename = "ResultType")]
-	pub r#type: String,
-	#[serde(rename = "ResultIsMine")]
-	pub is_mine: bool,
-	#[serde(rename = "ResultIsShared")]
-	pub is_shared: bool,
-	#[serde(rename = "ResultIsPublic")]
-	pub is_public: bool,
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Deserialize, Serialize)]
+#[serde(tag = "type", content = "id")]
+#[serde(rename_all = "camelCase")]
+pub enum SearchResultId {
+	/// An user
+	User(crate::model::id::User),
+	/// An avatar
+	Avatar(crate::model::id::Asset),
+	/// A prop
+	Prop(crate::model::id::Asset),
+	/// A world
+	World(crate::model::id::Asset),
 }
+
+impl From<SearchResultId> for crate::model::id::Any {
+	fn from(value: SearchResultId) -> Self {
+		match value {
+			SearchResultId::User(v) => v.into(),
+			SearchResultId::Avatar(v) => v.into(),
+			SearchResultId::Prop(v) => v.into(),
+			SearchResultId::World(v) => v.into(),
+		}
+	}
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct SearchResult {
+	#[serde(flatten)]
+	pub id: SearchResultId,
+	pub name: String,
+	pub image_url: String,
+}
+
+#[serde_with::serde_as]
+#[derive(Debug, Clone, Deserialize)]
+pub struct SearchResults(
+	#[cfg_attr(not(feature = "strict"), serde_as(as = "serde_with::VecSkipError<_>"))]
+	pub Vec<SearchResult>,
+);

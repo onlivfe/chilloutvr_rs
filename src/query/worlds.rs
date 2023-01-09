@@ -7,7 +7,7 @@ use crate::{
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize)]
 pub struct WorldDetailsQuery {
-	pub world_id: String,
+	pub world_id: crate::model::id::Asset,
 }
 
 impl Queryable for WorldDetailsQuery {

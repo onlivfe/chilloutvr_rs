@@ -4,7 +4,7 @@ use serde::Serialize;
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct InviteRequest {
-	pub id: String,
+	pub id: crate::model::id::Invite,
 	pub sender: UserBase,
-	pub receiver_id: String,
+	pub receiver_id: crate::model::id::User,
 }

@@ -1,4 +1,6 @@
-use crate::{model::SearchResult, Queryable};
+use serde::Deserialize;
+
+use crate::{model::SearchResults, Queryable};
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct Search {
@@ -6,7 +8,7 @@ pub struct Search {
 }
 
 impl Queryable for Search {
-	type ResponseType = SearchResult;
+	type ResponseType = SearchResults;
 	fn url(&self) -> String {
 		format!("{}/search/{}", crate::API_V1_HTTP_URL, &self.term)
 	}

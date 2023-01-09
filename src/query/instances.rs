@@ -5,7 +5,7 @@ use crate::{model::ExtendedInstanceDetails, Queryable};
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Instance {
-	pub instance_id: String,
+	pub instance_id: crate::model::id::Instance,
 }
 
 impl Queryable for Instance {

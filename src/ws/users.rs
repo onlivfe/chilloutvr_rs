@@ -5,7 +5,7 @@ use super::{Listenable, ResponseType};
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct UserOnlineStatusChange {
-	pub id: String,
+	pub id: crate::model::id::User,
 	pub is_online: bool,
 }
 
