@@ -100,7 +100,7 @@ impl CVR {
 	/// # Errors
 	///
 	/// If something with the request failed.
-	pub async fn query<T: Queryable + Send>(
+	pub async fn query<T: Queryable + Send + Sync>(
 		&self,
 		queryable: T,
 	) -> Result<T::ResponseType, ApiError> {
@@ -117,22 +117,19 @@ impl CVR {
 		{
 			let text = response.text().await?;
 			dbg!(&text);
-			let val: T::ResponseType = match queryable.wrapped_response() {
-				true => {
-					serde_json::from_str::<ResponseDataWrapper<T::ResponseType>>(&text)?
-						.data
-				}
-				false => serde_json::from_str(&text)?,
+			let val: T::ResponseType = if queryable.wrapped_response() {
+				serde_json::from_str::<ResponseDataWrapper<T::ResponseType>>(&text)?.data
+			} else {
+				serde_json::from_str(&text)?
 			};
 			Ok(val)
 		}
 		#[cfg(not(feature = "debug"))]
 		{
-			let val: T::ResponseType = match queryable.wrapped_response() {
-				true => {
-					response.json::<ResponseDataWrapper<T::ResponseType>>().await?.data
-				}
-				false => response.json().await?,
+			let val: T::ResponseType = if queryable.wrapped_response() {
+				response.json::<ResponseDataWrapper<T::ResponseType>>().await?.data
+			} else {
+				response.json().await?
 			};
 
 			Ok(val)
