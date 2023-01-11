@@ -1,12 +1,15 @@
 #![cfg(feature = "api_client")]
 
+use chilloutvr::model::{FriendRequests, Friends};
+
 mod common;
 
 #[test]
 #[ignore]
 fn friend_requests() -> Result<(), chilloutvr::api_client::ApiError> {
 	let query = chilloutvr::query::FriendRequests {};
-	let results = tokio_test::block_on(common::api_client().query(query))?;
+	let results: FriendRequests =
+		tokio_test::block_on(common::api_client().query(query))?;
 	// To run this test, you should have at least 1 pending friend request :/
 
 	dbg!(&results);
@@ -29,7 +32,7 @@ fn friend_requests() -> Result<(), chilloutvr::api_client::ApiError> {
 #[ignore]
 fn friends() -> Result<(), chilloutvr::api_client::ApiError> {
 	let query = chilloutvr::query::FriendList {};
-	let results = tokio_test::block_on(common::api_client().query(query))?;
+	let results: Friends = tokio_test::block_on(common::api_client().query(query))?;
 	// To run this test, you should have at least 1 friend :/
 
 	dbg!(&results);

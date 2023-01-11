@@ -1,6 +1,6 @@
 #![cfg(feature = "api_client")]
 
-use chilloutvr::model::id;
+use chilloutvr::model::{id, UserDetails};
 mod common;
 
 #[test]
@@ -8,7 +8,7 @@ mod common;
 fn user() -> Result<(), chilloutvr::api_client::ApiError> {
 	let user_id = id::User::try_from("81c652f6-f2e9-6d48-fff9-1584fc6ac95d").unwrap();
 	let query = chilloutvr::query::UserDetails { user_id: user_id.clone() };
-	let user = tokio_test::block_on(common::api_client().query(query))?;
+	let user: UserDetails = tokio_test::block_on(common::api_client().query(query))?;
 
 	dbg!(&user);
 

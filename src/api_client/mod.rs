@@ -1,4 +1,7 @@
 //! An optional API client feature using `reqwest`
+//!
+//! Besides using this, you could instead easily implement your own client using
+//! a different HTTP library with the `chilloutvr::query::Queryable` trait.
 
 use std::num::NonZeroU32;
 
@@ -9,12 +12,11 @@ use governor::{
 	Quota,
 	RateLimiter,
 };
+use racal::{Queryable, RequestMethod};
 use reqwest::{header::HeaderMap, Client};
+use serde::de::DeserializeOwned;
 
-use crate::{
-	model::{ApiAuth, ResponseDataWrapper},
-	query::Queryable,
-};
+use crate::{model::ApiAuth, query::CvrApiUnwrapping};
 
 #[derive(Debug)]
 pub enum ApiError {
@@ -95,11 +97,26 @@ impl CVR {
 	/// # Errors
 	///
 	/// If something with the request failed.
-	pub async fn query<T: Queryable<impl Into<SupportedApiStates>> + Send + Sync>(
+	pub async fn query<ReturnType, WrappedType, FromState, T>(
 		&self,
 		queryable: T,
-	) -> Result<T::ResponseType, ApiError> {
-		let mut request = self.client.get(queryable.url());
+	) -> Result<ReturnType, ApiError>
+	where
+		WrappedType: CvrApiUnwrapping<ReturnType> + DeserializeOwned,
+		FromState: Into<SupportedApiStates>,
+		T: Queryable<FromState, WrappedType> + Send + Sync,
+	{
+		let mut request = self.client.request(
+			match queryable.method() {
+				RequestMethod::Get => reqwest::Method::GET,
+				RequestMethod::Head => reqwest::Method::HEAD,
+				RequestMethod::Patch => reqwest::Method::PATCH,
+				RequestMethod::Post => reqwest::Method::POST,
+				RequestMethod::Put => reqwest::Method::PUT,
+				RequestMethod::Delete => reqwest::Method::DELETE,
+			},
+			queryable.url(),
+		);
 		if let Some(body) = queryable.body() {
 			request = request.body(body?);
 		}
@@ -112,22 +129,11 @@ impl CVR {
 		{
 			let text = response.text().await?;
 			dbg!(&text);
-			let val: T::ResponseType = if queryable.wrapped_response() {
-				serde_json::from_str::<ResponseDataWrapper<T::ResponseType>>(&text)?.data
-			} else {
-				serde_json::from_str(&text)?
-			};
-			Ok(val)
+			Ok(serde_json::from_str::<WrappedType>(&text)?.unwrap_data())
 		}
 		#[cfg(not(feature = "debug"))]
 		{
-			let val: T::ResponseType = if queryable.wrapped_response() {
-				response.json::<ResponseDataWrapper<T::ResponseType>>().await?.data
-			} else {
-				response.json().await?
-			};
-
-			Ok(val)
+			Ok(response.json::<WrappedType>().await?.unwrap_data())
 		}
 	}
 }

@@ -36,6 +36,8 @@ time = { version = "0.3", default-features = false, features = [
 serde_json = { version = "1" }
 strum = { version = "0.24", features = ["derive"] }
 
+racal = "0.0.0-alpha.0"
+
 # API client
 governor = { version = "0.5", optional = true }
 [dependencies.reqwest]

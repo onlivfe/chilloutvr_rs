@@ -1,14 +1,14 @@
+use racal::Queryable;
 use serde::Serialize;
 
-use crate::{model::UserAuth, query::Queryable};
+use crate::model::{ResponseDataWrapper, UserAuth};
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct UserDetails {
 	pub user_id: crate::model::id::User,
 }
 
-impl Queryable<()> for UserDetails {
-	type ResponseType = crate::model::UserDetails;
+impl Queryable<(), ResponseDataWrapper<crate::model::UserDetails>> for UserDetails {
 	fn url(&self) -> String {
 		format!("{}/users/{}", crate::API_V1_HTTP_URL, &self.user_id)
 	}
@@ -40,8 +40,7 @@ impl std::fmt::Debug for UserAuthRequest {
 	}
 }
 
-impl Queryable<()> for UserAuthRequest {
-	type ResponseType = UserAuth;
+impl Queryable<(), ResponseDataWrapper<UserAuth>> for UserAuthRequest {
 	fn url(&self) -> String {
 		format!("{}/users/auth", crate::API_V1_HTTP_URL)
 	}
