@@ -145,10 +145,10 @@ impl AsRef<str> for Any {
 	#[must_use]
 	fn as_ref(&self) -> &str {
 		match self {
-			Any::User(v) => v.as_ref(),
-			Any::Instance(v) => v.as_ref(),
-			Any::Asset(v) => v.as_ref(),
-			Any::Invite(v) => v.as_ref(),
+			Self::User(v) => v.as_ref(),
+			Self::Instance(v) => v.as_ref(),
+			Self::Asset(v) => v.as_ref(),
+			Self::Invite(v) => v.as_ref(),
 		}
 	}
 }

@@ -11,7 +11,7 @@ pub struct ApiAuth {
 
 impl From<UserAuth> for ApiAuth {
 	fn from(user_auth: UserAuth) -> Self {
-		ApiAuth { access_key: user_auth.access_key, username: user_auth.username }
+		Self { access_key: user_auth.access_key, username: user_auth.username }
 	}
 }
 

@@ -18,8 +18,6 @@
 #![warn(rustdoc::missing_doc_code_examples)]
 #![warn(clippy::pedantic)]
 #![warn(clippy::nursery)]
-// Strum macros would cause warnings
-#![allow(clippy::use_self)]
 // My project my choice, tabs are literally made for indentation, spaces not.
 #![allow(clippy::tabs_in_doc_comments)]
 

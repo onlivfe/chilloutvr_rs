@@ -19,6 +19,10 @@ impl<T: DeserializeOwned> CvrApiUnwrapping<T> for ResponseDataWrapper<T> {
 	}
 }
 
+/// Even unauthenticated requests should take rate limit account,
+/// thus not using `()` for the API state.
+pub struct NoAuthentication {}
+
 mod friends;
 pub use friends::*;
 mod instances;

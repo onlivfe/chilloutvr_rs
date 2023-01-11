@@ -16,7 +16,10 @@ use racal::{Queryable, RequestMethod};
 use reqwest::{header::HeaderMap, Client};
 use serde::de::DeserializeOwned;
 
-use crate::{model::ApiAuth, query::CvrApiUnwrapping};
+use crate::{
+	model::ApiAuth,
+	query::{CvrApiUnwrapping, NoAuthentication},
+};
 
 #[derive(Debug)]
 pub enum ApiError {
@@ -47,15 +50,15 @@ pub enum SupportedApiStates {
 	Authenticated(ApiAuth),
 }
 
-impl From<()> for SupportedApiStates {
-	fn from(_: ()) -> Self {
-		SupportedApiStates::Unauthenticated
+impl From<NoAuthentication> for SupportedApiStates {
+	fn from(_: NoAuthentication) -> Self {
+		Self::Unauthenticated
 	}
 }
 
 impl From<ApiAuth> for SupportedApiStates {
 	fn from(auth: ApiAuth) -> Self {
-		SupportedApiStates::Authenticated(auth)
+		Self::Authenticated(auth)
 	}
 }
 
@@ -82,7 +85,7 @@ impl CVR {
 	#[must_use]
 	pub fn new(user_agent: String, auth: impl Into<Option<ApiAuth>>) -> Self {
 		Self {
-			client: CVR::client(user_agent, auth.into()),
+			client: Self::client(user_agent, auth.into()),
 			// ~5 seconds per request sustained over one minute, allowing up to a request
 			// per second in bursts.
 			rate_limiter: RateLimiter::direct(

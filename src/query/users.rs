@@ -3,12 +3,16 @@ use serde::Serialize;
 
 use crate::model::{ResponseDataWrapper, UserAuth};
 
+use super::NoAuthentication;
+
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct UserDetails {
 	pub user_id: crate::model::id::User,
 }
 
-impl Queryable<(), ResponseDataWrapper<crate::model::UserDetails>> for UserDetails {
+impl Queryable<NoAuthentication, ResponseDataWrapper<crate::model::UserDetails>>
+	for UserDetails
+{
 	fn url(&self) -> String {
 		format!("{}/users/{}", crate::API_V1_HTTP_URL, &self.user_id)
 	}
@@ -40,7 +44,7 @@ impl std::fmt::Debug for UserAuthRequest {
 	}
 }
 
-impl Queryable<(), ResponseDataWrapper<UserAuth>> for UserAuthRequest {
+impl Queryable<NoAuthentication, ResponseDataWrapper<UserAuth>> for UserAuthRequest {
 	fn url(&self) -> String {
 		format!("{}/users/auth", crate::API_V1_HTTP_URL)
 	}
