@@ -1,4 +1,4 @@
-#![cfg(feature = "api_client")]
+#![cfg(feature = "http_client")]
 
 use chilloutvr::model::{id, UserDetails};
 mod common;

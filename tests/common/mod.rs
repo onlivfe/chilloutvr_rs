@@ -1,4 +1,4 @@
-#![cfg(feature = "api_client")]
+#![cfg(feature = "http_client")]
 // Something's funky with checking if these are used or not.
 #![allow(dead_code)]
 use chilloutvr::{
@@ -26,5 +26,6 @@ pub fn api_client() -> CVR {
 	assert!(!user_auth.username.is_empty());
 	assert!(user_auth.access_key.len() > 20);
 
-	CVR::new(USER_AGENT.to_string(), SavedLoginCredentials::from(user_auth))
+	tokio_test::block_on(CVR::new(USER_AGENT, SavedLoginCredentials::from(user_auth)))
+		.unwrap()
 }

@@ -162,14 +162,25 @@ impl CVR {
 	) -> Result<WsClient, ApiError> {
 		use serde::ser::Error;
 
-		let mut request: http::Request<()> =
-			http::Request::connect(crate::API_V1_WS_URL).body(()).unwrap();
-		request.headers_mut().insert(
-			"User-Agent",
-			user_agent.parse().map_err(|_| {
-				serde_json::Error::custom("Couldn't turn user_agent a header")
-			})?,
-		);
+		const VER: &str = concat!(env!("CARGO_PKG_NAME"), "/", env!("CARGO_PKG_VERSION"));
+
+		// This is pain, need to follow
+		// https://github.com/snapview/tungstenite-rs/issues/327
+		let mut request: http::Request<()> = http::Request::get(crate::API_V1_WS_URL)
+			.header("Host", "api.abinteractive.net")
+			.header("Connection", "upgrade")
+			.header("Upgrade", "websocket")
+			.header("Host", "api.abinteractive.net")
+			.header("User-Agent", user_agent)
+			.header("Sec-WebSocket-Key", VER)
+			.header("Sec-WebSocket-Version", "13")
+			.body(())
+			.map_err(|_| {
+				serde_json::Error::custom(
+					"Couldn't create the first request to upgrade to WS, suggesting a bad user agent",
+				)
+			})?;
+
 		if let Some(auth) = auth {
 			request.headers_mut().insert(
 				"Username",
