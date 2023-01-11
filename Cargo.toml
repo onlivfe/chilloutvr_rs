@@ -1,6 +1,6 @@
 [package]
 name = "chilloutvr"
-version = "0.0.0-alpha.4"
+version = "0.0.0-alpha.5"
 edition = "2021"
 license = "MPL-2.0"
 authors = ["ljoonal"]
@@ -66,5 +66,5 @@ features = ["rustls-tls-webpki-roots", "connect"]
 tokio-test = "0.4.2"
 
 [package.metadata.docs.rs]
-features = ["api_client"]
+features = ["ws_client", "http_client"]
 rustdoc-args = ["--cfg", "nightly"]
