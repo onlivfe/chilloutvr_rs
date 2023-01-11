@@ -1,9 +1,12 @@
-use crate::{model::Friends, Queryable};
+use crate::{
+	model::{ApiAuth, Friends},
+	query::Queryable,
+};
 
 #[derive(Default, Debug, Clone)]
 pub struct FriendList();
 
-impl Queryable for FriendList {
+impl Queryable<ApiAuth> for FriendList {
 	type ResponseType = Friends;
 	fn url(&self) -> String {
 		format!("{}/friends", crate::API_V1_HTTP_URL)
@@ -13,7 +16,7 @@ impl Queryable for FriendList {
 #[derive(Default, Debug, Clone)]
 pub struct FriendRequests();
 
-impl Queryable for FriendRequests {
+impl Queryable<ApiAuth> for FriendRequests {
 	type ResponseType = crate::model::FriendRequests;
 	fn url(&self) -> String {
 		format!("{}/friends/requests", crate::API_V1_HTTP_URL)

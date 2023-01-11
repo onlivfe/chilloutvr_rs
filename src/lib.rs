@@ -36,24 +36,3 @@ pub mod ws;
 #[cfg(feature = "api_client")]
 #[cfg_attr(nightly, doc(cfg(feature = "api_client")))]
 pub mod api_client;
-
-use serde::de::DeserializeOwned;
-
-/// Data for a HTTP request & response
-pub trait Queryable {
-	/// The type of the expected OK response
-	type ResponseType: DeserializeOwned;
-
-	/// The URL of the request
-	fn url(&self) -> String;
-	/// Creates a body for the request
-	fn body(&self) -> Option<serde_json::Result<Vec<u8>>> {
-		None
-	}
-
-	/// If the response type is wrapped in
-	/// [`chilloutvr::model::ResponseDataWrapper`]
-	fn wrapped_response(&self) -> bool {
-		true
-	}
-}

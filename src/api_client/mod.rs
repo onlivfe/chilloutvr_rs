@@ -10,33 +10,11 @@ use governor::{
 	RateLimiter,
 };
 use reqwest::{header::HeaderMap, Client};
-use serde::{Deserialize, Serialize};
 
 use crate::{
-	model::{ResponseDataWrapper, UserAuth},
-	Queryable,
+	model::{ApiAuth, ResponseDataWrapper},
+	query::Queryable,
 };
-
-#[derive(Serialize, Deserialize)]
-pub struct ApiAuth {
-	pub username: String,
-	pub access_key: String,
-}
-
-impl From<UserAuth> for ApiAuth {
-	fn from(user_auth: UserAuth) -> Self {
-		ApiAuth { access_key: user_auth.access_key, username: user_auth.username }
-	}
-}
-
-impl std::fmt::Debug for ApiAuth {
-	fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-		f.debug_struct("ApiAuth")
-			.field("username", &self.username)
-			.field("access_key", &"*****")
-			.finish()
-	}
-}
 
 #[derive(Debug)]
 pub enum ApiError {
@@ -60,6 +38,23 @@ impl From<reqwest::Error> for ApiError {
 pub struct CVR {
 	client: Client,
 	rate_limiter: RateLimiter<NotKeyed, InMemoryState, DefaultClock, NoOpMiddleware>,
+}
+
+pub enum SupportedApiStates {
+	Unauthenticated,
+	Authenticated(ApiAuth),
+}
+
+impl From<()> for SupportedApiStates {
+	fn from(_: ()) -> Self {
+		SupportedApiStates::Unauthenticated
+	}
+}
+
+impl From<ApiAuth> for SupportedApiStates {
+	fn from(auth: ApiAuth) -> Self {
+		SupportedApiStates::Authenticated(auth)
+	}
 }
 
 impl CVR {
@@ -100,7 +95,7 @@ impl CVR {
 	/// # Errors
 	///
 	/// If something with the request failed.
-	pub async fn query<T: Queryable + Send + Sync>(
+	pub async fn query<T: Queryable<impl Into<SupportedApiStates>> + Send + Sync>(
 		&self,
 		queryable: T,
 	) -> Result<T::ResponseType, ApiError> {

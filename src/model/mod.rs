@@ -14,6 +14,9 @@ pub struct ResponseDataWrapper<T> {
 
 pub mod id;
 
+mod authentication;
+pub use authentication::*;
+
 mod invites;
 pub use invites::*;
 

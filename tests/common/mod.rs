@@ -2,8 +2,8 @@
 // Something's funky with checking if these are used or not.
 #![allow(dead_code)]
 use chilloutvr::{
-	api_client::{ApiAuth, CVR},
-	model::{ResponseDataWrapper, UserAuth},
+	api_client::CVR,
+	model::{ApiAuth, ResponseDataWrapper, UserAuth},
 };
 
 const USER_AGENT: &str = concat!(
