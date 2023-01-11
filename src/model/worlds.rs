@@ -1,10 +1,11 @@
 use serde::{Deserialize, Serialize};
+#[cfg(feature = "http")]
 use time::OffsetDateTime;
 
+#[cfg(feature = "http")]
 use crate::model::{AssetBaseWithTags, UserBase};
 
-use super::InstanceRegion;
-
+#[cfg(feature = "http")]
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct WorldDetails {
@@ -22,6 +23,7 @@ pub struct WorldDetails {
 	pub filesize: u64,
 }
 
+#[cfg(feature = "http")]
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct WorldInstance {
@@ -30,9 +32,10 @@ pub struct WorldInstance {
 	pub name: String,
 	pub player_count: u32,
 	pub max_player_count: u32,
-	pub region: InstanceRegion,
+	pub region: super::InstanceRegion,
 }
 
+#[cfg(feature = "http")]
 #[serde_with::serde_as]
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
@@ -42,4 +45,13 @@ pub struct WorldDetailsResponse {
 	pub instances: Vec<WorldInstance>,
 	#[serde(flatten)]
 	pub world: WorldDetails,
+}
+
+#[cfg(feature = "ws")]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct WorldDisplayDetails {
+	pub id: crate::model::id::Asset,
+	pub name: String,
+	pub image_url: String,
 }

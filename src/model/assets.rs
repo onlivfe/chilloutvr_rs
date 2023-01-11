@@ -2,6 +2,7 @@ use crate::model::UserBase;
 use serde::{Deserialize, Serialize};
 use time::OffsetDateTime;
 
+#[cfg(feature = "http")]
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct AssetBase {
@@ -10,6 +11,7 @@ pub struct AssetBase {
 	pub image_url: String,
 }
 
+#[cfg(feature = "http")]
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct AssetBaseWithTags {
@@ -20,6 +22,7 @@ pub struct AssetBaseWithTags {
 	pub tags: Vec<String>,
 }
 
+#[cfg(feature = "http")]
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct AssetBaseWithCategories {
@@ -30,6 +33,7 @@ pub struct AssetBaseWithCategories {
 	pub categories: Vec<String>,
 }
 
+#[cfg(feature = "http")]
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct AssetFile {
@@ -46,6 +50,7 @@ pub struct AssetFile {
 	pub location: String,
 }
 
+#[cfg(feature = "http")]
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct AvatarDetails {
@@ -59,6 +64,7 @@ pub struct AvatarDetails {
 	pub categories: Vec<String>,
 }
 
+#[cfg(feature = "http")]
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct AvatarAssetDetails {

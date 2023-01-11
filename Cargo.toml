@@ -12,6 +12,8 @@ categories = ["api-bindings", "games"]
 
 include = ["src", "Cargo.toml", "LICENSE", "README.md"]
 
+build = "build.rs"
+
 [badges]
 maintenance = { status = "experimental" }
 
@@ -21,8 +23,16 @@ path = "src/lib.rs"
 
 [features]
 
-default = []
-api_client = ["reqwest", "governor"]
+default = ["http", "ws"]
+
+# Enable models that relate are used in HTTP requests
+http = ["racal"]
+http_client = ["http", "reqwest", "governor"]
+
+# Enable models that are used in WS requests
+ws = []
+ws_client = ["ws", "tokio", "tokio-tungstenite", "futures-util", "dep:http"]
+
 # By default we allows deserializing some things partially even with errors.
 # Like skipping array entries with errors, which is not wanted for tests though.
 debug = []
@@ -36,15 +46,23 @@ time = { version = "0.3", default-features = false, features = [
 serde_json = { version = "1" }
 strum = { version = "0.24", features = ["derive"] }
 
-racal = "0.0.0-alpha.0"
-
-# API client
+# API client specifics
+racal = { version = "0.0.0-alpha.0", optional = true}
 governor = { version = "0.5", optional = true }
+tokio = { version = "1", optional = true}
+futures-util = { version = "0.3", optional = true}
+http = { version = "0.2", optional = true }
 [dependencies.reqwest]
 optional = true
 version = "0.11"
 default-features = false
 features = ["json", "rustls-tls"]
+
+[dependencies.tokio-tungstenite]
+optional = true
+version = "0.18.0"
+default-features = false
+features = ["rustls-tls-webpki-roots", "connect"]
 
 [dev-dependencies]
 tokio-test = "0.4.2"

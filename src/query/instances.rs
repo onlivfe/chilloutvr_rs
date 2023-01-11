@@ -1,16 +1,23 @@
+#[cfg(feature = "http")]
 use racal::Queryable;
-use serde::{Deserialize, Serialize};
+use serde::Deserialize;
 
-use crate::model::{ExtendedInstanceDetails, ResponseDataWrapper};
+#[cfg(feature = "http")]
+use crate::{
+	model::{ExtendedInstanceDetails, ResponseDataWrapper},
+	query::NoAuthentication,
+};
 
-use super::NoAuthentication;
-
-#[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize, Serialize)]
+/// Gets details about a specific instance
+#[cfg(feature = "http")]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Instance {
+	/// The ID of the instance to get more information about
 	pub instance_id: crate::model::id::Instance,
 }
 
+#[cfg(feature = "http")]
 impl Queryable<NoAuthentication, ResponseDataWrapper<ExtendedInstanceDetails>>
 	for Instance
 {

@@ -1,6 +1,7 @@
 use serde::{Deserialize, Serialize};
 use serde_with::serde_as;
 
+#[cfg(feature = "http")]
 #[derive(Clone, Debug, PartialEq, Eq, Hash, Deserialize, Serialize)]
 #[serde(tag = "type", content = "id")]
 #[serde(rename_all = "camelCase")]
@@ -15,6 +16,7 @@ pub enum SearchResultId {
 	World(crate::model::id::Asset),
 }
 
+#[cfg(feature = "http")]
 impl From<SearchResultId> for crate::model::id::Any {
 	fn from(value: SearchResultId) -> Self {
 		match value {
@@ -26,6 +28,7 @@ impl From<SearchResultId> for crate::model::id::Any {
 	}
 }
 
+#[cfg(feature = "http")]
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct SearchResult {
@@ -35,6 +38,7 @@ pub struct SearchResult {
 	pub image_url: String,
 }
 
+#[cfg(feature = "http")]
 #[serde_with::serde_as]
 #[derive(Debug, Clone, Deserialize)]
 pub struct SearchResults(

@@ -33,11 +33,13 @@ macro_rules! add_id {
 		#[doc = concat!("let id2 = ", stringify!($name), "::try_from(\"tother-legit-id\").unwrap();")]
 		/// assert!(id1 != id2);
 		/// ```
+		#[cfg(any(feature = "http", feature = "ws"))]
 		#[derive(Clone, Debug, PartialEq, Eq, Serialize, Hash)]
 		#[serde(transparent)]
 		$(#[$meta])*
 		pub struct $name(String);
 
+		#[cfg(any(feature = "http", feature = "ws"))]
 		impl AsRef<str> for $name {
 			/// Extracts a string slice containing the entire inner String.
 			#[must_use]
@@ -46,12 +48,14 @@ macro_rules! add_id {
 			}
 		}
 
+		#[cfg(any(feature = "http", feature = "ws"))]
 		impl std::fmt::Display for $name {
 			fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
 				write!(f, "{}", self.0)
 			}
 		}
 
+		#[cfg(any(feature = "http", feature = "ws"))]
 		impl TryFrom<String> for $name {
 			type Error = &'static str;
 			fn try_from(v: String) -> Result<Self, Self::Error> {
@@ -60,6 +64,7 @@ macro_rules! add_id {
 		}
 
 		/// For easier scripting, should use String otherwise.
+		#[cfg(any(feature = "http", feature = "ws"))]
 		impl TryFrom<&'static str> for $name {
 			type Error = &'static str;
 			fn try_from(v: &'static str) -> Result<Self, Self::Error> {
@@ -67,18 +72,21 @@ macro_rules! add_id {
 			}
 		}
 
+		#[cfg(any(feature = "http", feature = "ws"))]
 		impl From<$name> for String {
 			fn from(id: $name) -> String {
 				id.0
 			}
 		}
 
+		#[cfg(any(feature = "http", feature = "ws"))]
 		impl From<$name> for Any {
 			fn from(id: $name) -> Any {
 				Any::$name(id)
 			}
 		}
 
+		#[cfg(any(feature = "http", feature = "ws"))]
 		impl<'de> serde::de::Deserialize<'de> for $name {
 			fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
 			where
@@ -116,8 +124,6 @@ add_id!(Instance);
 add_id!(Asset);
 add_id!(Invite);
 
-#[derive(Clone, Debug, PartialEq, Eq, Hash, Deserialize, Serialize)]
-#[serde(untagged)]
 /// Any of the CVR IDs
 ///
 /// # Example usage
@@ -129,6 +135,9 @@ add_id!(Invite);
 /// let id2: chilloutvr::model::id::Any = id2.into();
 /// assert!(id1 != id2);
 /// ```
+#[cfg(any(feature = "http", feature = "ws"))]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Deserialize, Serialize)]
+#[serde(untagged)]
 pub enum Any {
 	/// An user ID
 	User(User),
@@ -140,6 +149,7 @@ pub enum Any {
 	Invite(Invite),
 }
 
+#[cfg(any(feature = "http", feature = "ws"))]
 impl AsRef<str> for Any {
 	/// Extracts a string slice containing the entire inner String.
 	#[must_use]
@@ -153,6 +163,7 @@ impl AsRef<str> for Any {
 	}
 }
 
+#[cfg(any(feature = "http", feature = "ws"))]
 impl std::fmt::Display for Any {
 	fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
 		write!(f, "{}", self.as_ref())

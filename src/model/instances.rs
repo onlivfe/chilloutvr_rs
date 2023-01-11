@@ -1,7 +1,8 @@
+#[cfg(feature = "http")]
+use crate::model::{AssetBase, AssetBaseWithTags, UserBase, UserDetails};
 use serde::{Deserialize, Serialize};
 
-use crate::model::{AssetBase, AssetBaseWithTags, UserBase, UserDetails};
-
+#[cfg(feature = "http")]
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize, Serialize)]
 #[serde(rename_all = "lowercase")]
 pub enum InstancePrivacy {
@@ -13,6 +14,7 @@ pub enum InstancePrivacy {
 	OwnerMustInvite,
 }
 
+#[cfg(feature = "http")]
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize, Serialize)]
 #[non_exhaustive]
 pub enum InstanceRegion {
@@ -24,6 +26,7 @@ pub enum InstanceRegion {
 	Asia,
 }
 
+#[cfg(feature = "http")]
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct InstanceDetails {
@@ -39,6 +42,7 @@ pub struct InstanceDetails {
 	pub members: Vec<UserBase>,
 }
 
+#[cfg(feature = "http")]
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ExtendedInstanceDetails {
@@ -50,6 +54,7 @@ pub struct ExtendedInstanceDetails {
 	pub world: AssetBaseWithTags,
 }
 
+#[cfg(feature = "http")]
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct InstanceHost {
@@ -57,6 +62,7 @@ pub struct InstanceHost {
 	pub port: u32,
 }
 
+#[cfg(feature = "http")]
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct InstanceJoinResponse {

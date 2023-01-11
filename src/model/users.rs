@@ -1,8 +1,14 @@
+#[cfg(feature = "http")]
 use crate::model::{AssetBase, FeaturedItem};
 use serde::{Deserialize, Serialize};
 
+#[cfg(feature = "ws")]
+use crate::model::{Listenable, ResponseType};
+
+#[cfg(feature = "http")]
 use super::AssetBaseWithCategories;
 
+#[cfg(any(feature = "http", feature = "ws"))]
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct UserBase {
@@ -11,6 +17,7 @@ pub struct UserBase {
 	pub image_url: String,
 }
 
+#[cfg(feature = "http")]
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct UserDetails {
@@ -22,6 +29,7 @@ pub struct UserDetails {
 	pub avatar: AssetBase,
 }
 
+#[cfg(feature = "http")]
 #[derive(Clone, PartialEq, Eq, Hash, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct UserAuth {
@@ -36,6 +44,7 @@ pub struct UserAuth {
 	pub blocked_users: Vec<String>,
 }
 
+#[cfg(feature = "http")]
 impl std::fmt::Debug for UserAuth {
 	fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
 		f.debug_struct("UserAuth")
@@ -51,6 +60,7 @@ impl std::fmt::Debug for UserAuth {
 	}
 }
 
+#[cfg(feature = "http")]
 #[serde_with::serde_as]
 #[derive(Debug, Clone, Deserialize)]
 pub struct Friends(
@@ -58,9 +68,36 @@ pub struct Friends(
 	pub Vec<AssetBaseWithCategories>,
 );
 
+#[cfg(feature = "http")]
 #[serde_with::serde_as]
 #[derive(Debug, Clone, Deserialize)]
 pub struct FriendRequests(
 	#[cfg_attr(not(feature = "strict"), serde_as(as = "serde_with::VecSkipError<_>"))]
 	pub Vec<AssetBase>,
 );
+
+#[cfg(feature = "ws")]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct UserOnlineStatusChange {
+	pub id: crate::model::id::User,
+	pub is_online: bool,
+}
+
+#[cfg(feature = "ws")]
+#[serde_with::serde_as]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct SkipErrors(
+	#[serde_as(as = "serde_with::VecSkipError<_>")] Vec<UserOnlineStatusChange>,
+);
+
+#[cfg(feature = "ws")]
+impl Listenable for Vec<UserOnlineStatusChange> {
+	const RESPONSE_TYPE: ResponseType = ResponseType::OnlineFriends;
+}
+
+#[cfg(feature = "ws")]
+impl Listenable for SkipErrors {
+	const RESPONSE_TYPE: ResponseType = ResponseType::OnlineFriends;
+}
