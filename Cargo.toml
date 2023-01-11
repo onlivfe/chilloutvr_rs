@@ -12,8 +12,6 @@ categories = ["api-bindings", "games"]
 
 include = ["src", "Cargo.toml", "LICENSE", "README.md"]
 
-build = "build.rs"
-
 [badges]
 maintenance = { status = "experimental" }
 
