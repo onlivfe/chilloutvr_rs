@@ -28,6 +28,7 @@ impl Queryable<NoAuthentication, ResponseDataWrapper<WorldDetailsResponse>>
 #[cfg(feature = "http")]
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize)]
 pub struct WorldListQuery {
+	// TODO: Enum-ify
 	/// The category of the worlds to list in
 	pub category: String,
 }
