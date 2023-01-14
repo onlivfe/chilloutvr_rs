@@ -1,7 +1,7 @@
 use serde::Deserialize;
 
 #[cfg(feature = "ws")]
-use crate::model::{Listenable, ResponseType, UserBase, WorldDisplayDetails};
+use crate::model::{UserBase, WorldDisplayDetails};
 
 /// A request from the sender to be invited by the receiver
 #[cfg(feature = "ws")]
@@ -33,19 +33,16 @@ pub struct Invite {
 #[serde_with::serde_as]
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub struct Invites(#[serde_as(as = "serde_with::VecSkipError<_>")] Vec<Invite>);
+pub struct Invites(
+	#[cfg_attr(not(feature = "strict"), serde_as(as = "serde_with::VecSkipError<_>"))]
+	Vec<Invite>,
+);
 
 #[cfg(feature = "ws")]
-impl Listenable for Vec<Invite> {
-	const RESPONSE_TYPE: ResponseType = ResponseType::OnlineFriends;
-}
-
-#[cfg(feature = "ws")]
-impl Listenable for Invites {
-	const RESPONSE_TYPE: ResponseType = ResponseType::OnlineFriends;
-}
-
-#[cfg(feature = "ws")]
-impl Listenable for Vec<InviteRequest> {
-	const RESPONSE_TYPE: ResponseType = ResponseType::OnlineFriends;
-}
+#[serde_with::serde_as]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct InviteRequests(
+	#[cfg_attr(not(feature = "strict"), serde_as(as = "serde_with::VecSkipError<_>"))]
+	Vec<InviteRequest>,
+);

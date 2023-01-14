@@ -13,23 +13,27 @@ pub struct AssetBase {
 
 #[cfg(feature = "http")]
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize, Serialize)]
+#[serde_with::serde_as]
 #[serde(rename_all = "camelCase")]
 pub struct AssetBaseWithTags {
 	pub id: crate::model::id::Asset,
 	pub name: String,
 	pub image_url: String,
 	#[serde(default)]
+	#[cfg_attr(not(feature = "strict"), serde_as(as = "serde_with::VecSkipError<_>"))]
 	pub tags: Vec<String>,
 }
 
 #[cfg(feature = "http")]
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize, Serialize)]
+#[serde_with::serde_as]
 #[serde(rename_all = "camelCase")]
 pub struct AssetBaseWithCategories {
 	pub id: crate::model::id::Asset,
 	pub name: String,
 	pub image_url: String,
 	#[serde(default)]
+	#[cfg_attr(not(feature = "strict"), serde_as(as = "serde_with::VecSkipError<_>"))]
 	pub categories: Vec<String>,
 }
 
@@ -52,6 +56,7 @@ pub struct AssetFile {
 
 #[cfg(feature = "http")]
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize, Serialize)]
+#[serde_with::serde_as]
 #[serde(rename_all = "camelCase")]
 pub struct AvatarDetails {
 	pub id: crate::model::id::Asset,
@@ -61,6 +66,7 @@ pub struct AvatarDetails {
 	#[serde(rename = "authorGuid")]
 	pub author_id: crate::model::id::User,
 	#[serde(default)]
+	#[cfg_attr(not(feature = "strict"), serde_as(as = "serde_with::VecSkipError<_>"))]
 	pub categories: Vec<String>,
 }
 

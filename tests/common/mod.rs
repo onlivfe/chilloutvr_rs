@@ -26,6 +26,5 @@ pub fn api_client() -> CVR {
 	assert!(!user_auth.username.is_empty());
 	assert!(user_auth.access_key.len() > 20);
 
-	tokio_test::block_on(CVR::new(USER_AGENT, SavedLoginCredentials::from(user_auth)))
-		.unwrap()
+	CVR::new(USER_AGENT.to_owned(), SavedLoginCredentials::from(user_auth)).unwrap()
 }

@@ -28,6 +28,7 @@ pub enum InstanceRegion {
 
 #[cfg(feature = "http")]
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize, Serialize)]
+#[serde_with::serde_as]
 #[serde(rename_all = "camelCase")]
 pub struct InstanceDetails {
 	pub id: crate::model::id::Instance,
@@ -39,6 +40,7 @@ pub struct InstanceDetails {
 	pub max_players: u32,
 	pub current_player_count: u32,
 	#[serde(default)]
+	#[cfg_attr(not(feature = "strict"), serde_as(as = "serde_with::VecSkipError<_>"))]
 	pub members: Vec<UserBase>,
 }
 

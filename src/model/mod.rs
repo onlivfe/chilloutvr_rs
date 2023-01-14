@@ -1,6 +1,6 @@
 //! Models of the API responses to queries.
 
-use serde::{Deserialize, Serialize};
+use serde::{de::DeserializeOwned, Deserialize, Serialize};
 use serde_with::{serde_as, NoneAsEmptyString};
 
 pub mod id;
@@ -28,7 +28,7 @@ pub use searches::*;
 
 /// Seems like a lot if not all of the API calls are wrapped
 /// in a generic data/message struct.
-#[cfg(any(feature = "http", feature = "ws"))]
+#[cfg(any(feature = "http"))]
 #[serde_as]
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
@@ -47,36 +47,40 @@ pub struct ResponseDataWrapper<T> {
 	Clone,
 	PartialEq,
 	Eq,
-	Hash,
 	Deserialize,
-	Serialize,
 	strum::Display,
 	strum::AsRefStr,
 	strum::EnumVariantNames,
 )]
 #[non_exhaustive]
-pub enum ResponseType {
-	MenuPopup = 0,
-	HudMessage = 1,
-	PushNotification = 2,
-	OnlineFriends = 10,
-	Invites = 15,
-	RequestInvites = 20,
-	FriendRequest = 25,
+#[serde(tag = "responseType", content = "data")]
+pub enum WsResponseData {
+	#[serde(rename = "0")]
+	MenuPopup(serde_json::Value),
+	#[serde(rename = "1")]
+	HudMessage(serde_json::Value),
+	#[serde(rename = "2")]
+	PushNotification(serde_json::Value),
+	#[serde(rename = "10")]
+	OnlineFriends(Friends),
+	#[serde(rename = "15")]
+	Invites(Invites),
+	#[serde(rename = "20")]
+	RequestInvites(InviteRequest),
+	#[serde(rename = "25")]
+	FriendRequest(FriendRequests),
 }
 
-/// Data for a WS response
-#[cfg(feature = "ws")]
-pub trait Listenable {
-	const RESPONSE_TYPE: ResponseType;
-}
-
-#[cfg(feature = "ws")]
-#[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize, Serialize)]
+#[cfg(any(feature = "http"))]
+#[serde_as]
+#[derive(Debug, Clone, PartialEq, Eq, Deserialize)]
 #[serde(rename_all = "camelCase")]
-struct ResponseWrapper<T> {
-	pub request_type: ResponseType,
+pub struct WsResponse {
+	/// Non-empty string, otherwise deserialized to none
+	#[serde(default)]
+	#[serde_as(as = "NoneAsEmptyString")]
 	pub message: Option<String>,
+	/// The actual data
 	#[serde(flatten)]
-	pub data: ResponseDataWrapper<T>,
+	pub data: WsResponseData,
 }

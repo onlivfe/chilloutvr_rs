@@ -18,6 +18,10 @@
 //! > Requires the `Username` and `AccessKey` headers
 //! in addition to the rate limiting.
 
+#[cfg(feature = "ws_client")]
+use crate::model::WsResponse;
+#[cfg(feature = "ws_client")]
+use futures_util::{StreamExt, TryStream, TryStreamExt};
 #[cfg(feature = "http_client")]
 use governor::{
 	clock::DefaultClock,
@@ -37,7 +41,6 @@ use std::num::NonZeroU32;
 use tokio::net::TcpStream;
 #[cfg(feature = "ws_client")]
 use tokio::sync::RwLock;
-
 #[cfg(feature = "ws_client")]
 use tokio_tungstenite::{MaybeTlsStream, WebSocketStream};
 
@@ -80,17 +83,28 @@ impl From<tokio_tungstenite::tungstenite::Error> for ApiError {
 type NormalRateLimiter =
 	RateLimiter<NotKeyed, InMemoryState, DefaultClock, NoOpMiddleware>;
 #[cfg(feature = "ws_client")]
-type WsClient = RwLock<WebSocketStream<MaybeTlsStream<TcpStream>>>;
+type WsClient = WebSocketStream<MaybeTlsStream<TcpStream>>;
+type WsStream = Box<
+	dyn TryStream<Ok = WsResponse, Error = ApiError, Item = Result<WsResponse, ApiError>>,
+>;
+
+struct WsChannels {
+	send: tokio::sync::mpsc::Sender<Vec<u8>>,
+	receive: tokio::sync::mpsc::Receiver<Result<WsResponse, ApiError>>,
+}
 
 /// The main API client
-#[derive(Debug)]
 pub struct CVR {
 	#[cfg(feature = "http_client")]
 	http: Client,
 	#[cfg(feature = "http_client")]
 	http_rate_limiter: NormalRateLimiter,
 	#[cfg(feature = "ws_client")]
-	ws: WsClient,
+	ws: RwLock<Option<WsChannels>>,
+	#[cfg(feature = "ws_client")]
+	user_agent: String,
+	#[cfg(feature = "ws_client")]
+	auth: SavedLoginCredentials,
 }
 
 #[doc(hidden)]
@@ -156,23 +170,26 @@ impl CVR {
 
 	/// Creates an API client
 	#[cfg(feature = "ws_client")]
-	async fn ws_client(
-		user_agent: &str,
-		auth: &Option<SavedLoginCredentials>,
-	) -> Result<WsClient, ApiError> {
+	async fn ws_client(&self) -> Result<(), ApiError> {
+		use base64::Engine as _;
+		use futures_util::StreamExt;
 		use serde::ser::Error;
 
-		const VER: &str = concat!(env!("CARGO_PKG_NAME"), "/", env!("CARGO_PKG_VERSION"));
+		// WebSocket protocol is dumb, just why.... this is useless
+		// And yes it needs to be exactly 16 bytes after decoding
+		let rand_base_64 =
+			base64::engine::general_purpose::URL_SAFE.encode(rand::random::<[u8; 16]>());
 
 		// This is pain, need to follow
 		// https://github.com/snapview/tungstenite-rs/issues/327
-		let mut request: http::Request<()> = http::Request::get(crate::API_V1_WS_URL)
-			.header("Host", "api.abinteractive.net")
-			.header("Connection", "upgrade")
+		let request: http::Request<()> = http::Request::get(crate::API_V1_WS_URL)
+			.header("User-Agent", self.user_agent.clone())
+			.header("Username", self.auth.username.clone())
+			.header("AccessKey", self.auth.access_key.clone())
+			.header("Host", crate::API_V1_WS_HOST)
+			.header("Connection", "Upgrade")
 			.header("Upgrade", "websocket")
-			.header("Host", "api.abinteractive.net")
-			.header("User-Agent", user_agent)
-			.header("Sec-WebSocket-Key", VER)
+			.header("Sec-WebSocket-Key", rand_base_64)
 			.header("Sec-WebSocket-Version", "13")
 			.body(())
 			.map_err(|_| {
@@ -181,25 +198,26 @@ impl CVR {
 				)
 			})?;
 
-		if let Some(auth) = auth {
-			request.headers_mut().insert(
-				"Username",
-				auth.username.parse().map_err(|_| {
-					serde_json::Error::custom("Couldn't turn username into a header")
-				})?,
-			);
-			request.headers_mut().insert(
-				"AccessKey",
-				auth.access_key.parse().map_err(|_| {
-					serde_json::Error::custom("Couldn't turn access_key into a header")
-				})?,
-			);
-		}
+		let (mut client, _) = tokio_tungstenite::connect_async(request).await?;
 
-		let (client, _) =
-			tokio_tungstenite::connect_async_tls_with_config(request, None, None).await?;
+		// TODO: listening to websocket requests
+		tokio::spawn(async move {
+			while let Some(res) = &client.next().await {
+				if let Ok(msg) = res {
+					/*
+					if msg.is_close() {
+						//
+					} else if let Ok(val) = serde_json::from_slice::<
+						crate::model::WsResponse,
+					>(&msg.into_data())
+					{
+						// TODO: handling
+					}*/
+				}
+			}
+		});
 
-		Ok(RwLock::new(client))
+		Ok(())
 	}
 
 	/// Creates a new CVR API client
@@ -208,20 +226,26 @@ impl CVR {
 	///
 	/// If deserializing user agent into a header fails,
 	/// or if WS API is enabled & the connection establishment fails.
-	pub async fn new(
-		user_agent: &str,
-		auth: impl Into<Option<SavedLoginCredentials>> + Send,
+	pub fn new(
+		user_agent: String,
+		#[cfg(not(feature = "ws_client"))] auth: impl Into<Option<SavedLoginCredentials>>
+		+ Send,
+		#[cfg(feature = "ws_client")] auth: impl Into<SavedLoginCredentials> + Send,
 	) -> Result<Self, ApiError> {
 		let auth = auth.into();
 		Ok(Self {
 			#[cfg(feature = "http_client")]
-			http: Self::http_client(user_agent, &auth)?,
+			http: Self::http_client(&user_agent, &auth.clone().into())?,
 			// ~5 seconds per request sustained over one minute, allowing up to a request
 			// per second in bursts.
 			#[cfg(feature = "http_client")]
 			http_rate_limiter: Self::http_rate_limiter(),
 			#[cfg(feature = "ws_client")]
-			ws: Self::ws_client(user_agent, &auth).await?,
+			ws: RwLock::new(None),
+			#[cfg(feature = "ws_client")]
+			auth,
+			#[cfg(feature = "ws_client")]
+			user_agent,
 		})
 	}
 
@@ -305,6 +329,8 @@ impl CVR {
 	) -> Result<(), ApiError> {
 		use futures_util::SinkExt;
 
+		todo!();
+		/* 
 		let data = crate::query::RequestWrapper {
 			request_type: requestable.request_type(),
 			data: requestable,
@@ -312,10 +338,54 @@ impl CVR {
 		let data = serde_json::to_vec(&data)?;
 		let data = tokio_tungstenite::tungstenite::Message::binary(data);
 
-		self.ws.write().await.send(data).await?;
+		{
+			let mut lock = self.ws.write().await;
+			if let Some(ws_client) = &mut *lock {
+				ws_client.feed(data).await?;
+			} else {
+				let mut client = self.ws_client().await?;
+				client.send(data).await?;
+				*lock = Some(client);
+			}
+		}*/
 
 		Ok(())
 	}
 
-	// TODO: listening to websocket requests
+	/// Listens to events, locks the client from sending events.
+	///
+	/// # Errors
+	///
+	/// If creating the client failss
+	#[cfg(feature = "ws_client")]
+	pub async fn listen(&self) -> Result<WsStream, ApiError> {
+		todo!();
+		/*
+		{
+			let lock = self.ws.read().await;
+			if let Some(ws_client) = &*lock {
+				return Ok(Self::client_to_stream(ws_client));
+			}
+		}
+
+		let client = self.ws_client().await?;
+		let mut lock = self.ws.write().await;
+		*lock = Some(client);
+		let lock = lock.downgrade();
+		if let Some(ws_client) = &*lock {
+			return Ok(Self::client_to_stream(&ws_client));
+		}
+		panic!("RwLocks apparently don't work");
+		*/
+	}
+
+	fn client_to_stream(client: &WsClient) -> WsStream {
+		todo!();
+		/*
+		Box::new(client.map(|res| match res {
+			Ok(res) => Ok(serde_json::from_slice::<WsResponse>(&res.into_data())?),
+			Err(err) => Err(ApiError::Tungstenite(err)),
+		}))
+		*/
+	}
 }

@@ -2,9 +2,6 @@
 use crate::model::{AssetBase, FeaturedItem};
 use serde::{Deserialize, Serialize};
 
-#[cfg(feature = "ws")]
-use crate::model::{Listenable, ResponseType};
-
 #[cfg(feature = "http")]
 use super::AssetBaseWithCategories;
 
@@ -62,7 +59,7 @@ impl std::fmt::Debug for UserAuth {
 
 #[cfg(feature = "http")]
 #[serde_with::serde_as]
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Debug, Clone, Deserialize, PartialEq, Eq, Hash)]
 pub struct Friends(
 	#[cfg_attr(not(feature = "strict"), serde_as(as = "serde_with::VecSkipError<_>"))]
 	pub Vec<AssetBaseWithCategories>,
@@ -70,7 +67,7 @@ pub struct Friends(
 
 #[cfg(feature = "http")]
 #[serde_with::serde_as]
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Debug, Clone, Deserialize, PartialEq, Eq, Hash)]
 pub struct FriendRequests(
 	#[cfg_attr(not(feature = "strict"), serde_as(as = "serde_with::VecSkipError<_>"))]
 	pub Vec<AssetBase>,
@@ -88,16 +85,7 @@ pub struct UserOnlineStatusChange {
 #[serde_with::serde_as]
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
-pub struct SkipErrors(
-	#[serde_as(as = "serde_with::VecSkipError<_>")] Vec<UserOnlineStatusChange>,
+pub struct OnlineUserStatusChanges(
+	#[cfg_attr(not(feature = "strict"), serde_as(as = "serde_with::VecSkipError<_>"))]
+	Vec<UserOnlineStatusChange>,
 );
-
-#[cfg(feature = "ws")]
-impl Listenable for Vec<UserOnlineStatusChange> {
-	const RESPONSE_TYPE: ResponseType = ResponseType::OnlineFriends;
-}
-
-#[cfg(feature = "ws")]
-impl Listenable for SkipErrors {
-	const RESPONSE_TYPE: ResponseType = ResponseType::OnlineFriends;
-}
