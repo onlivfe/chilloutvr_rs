@@ -1,6 +1,6 @@
 //! Models of the API responses to queries.
 
-use serde::{de::DeserializeOwned, Deserialize, Serialize};
+use serde::{Deserialize, Serialize};
 use serde_with::{serde_as, NoneAsEmptyString};
 
 pub mod id;
