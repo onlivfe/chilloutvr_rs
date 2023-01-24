@@ -87,7 +87,7 @@ pub struct CVR {
 	#[cfg(feature = "http_client")]
 	http_rate_limiter: NormalRateLimiter,
 	#[cfg(feature = "ws_client")]
-	ws: tokio::sync::RwLock<Option<ws::WsClient>>,
+	ws: tokio::sync::RwLock<Option<ws::Client>>,
 	#[cfg(feature = "ws_client")]
 	user_agent: String,
 	#[cfg(feature = "ws_client")]
@@ -271,15 +271,15 @@ impl CVR {
 			}
 		}
 
-		let client =
-			ws::WsClient::new(self.user_agent.clone(), self.auth.clone()).await?;
+		let client = ws::Client::new(self.user_agent.clone(), self.auth.clone()).await?;
 		let mut lock = self.ws.write().await;
 		*lock = Some(client);
 		let lock = lock.downgrade();
-		if let Some(ws_client) = &*lock {
-			return ws_client.send(requestable).await;
-		}
-		panic!("RwLocks apparently don't work");
+		(*lock)
+			.as_ref()
+			.expect("client should exist as lock was never dropped")
+			.send(requestable)
+			.await
 	}
 
 	/// Listens to events, locks the client from sending events.
@@ -288,24 +288,23 @@ impl CVR {
 	///
 	/// If creating the client fails
 	#[cfg(feature = "ws_client")]
-	pub async fn listen(&self) -> Result<ws::WsStreamReturn, ApiError> {
+	pub async fn listen(&self) -> Result<ws::ReceiverContainer, ApiError> {
 		{
 			let lock = self.ws.read().await;
 			if let Some(ws_client) = &*lock {
 				if ws_client.is_ok() {
-					return ws_client.listen().await;
+					return Ok(ws_client.listen());
 				}
 			}
 		}
 
-		let client =
-			ws::WsClient::new(self.user_agent.clone(), self.auth.clone()).await?;
+		let client = ws::Client::new(self.user_agent.clone(), self.auth.clone()).await?;
 		let mut lock = self.ws.write().await;
 		*lock = Some(client);
 		let lock = lock.downgrade();
-		if let Some(ws_client) = &*lock {
-			return ws_client.listen().await;
-		}
-		panic!("RwLocks apparently don't work");
+		Ok((*lock)
+			.as_ref()
+			.expect("client should exist as lock was never dropped")
+			.listen())
 	}
 }

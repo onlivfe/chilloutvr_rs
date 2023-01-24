@@ -7,7 +7,7 @@ use crate::{
 };
 #[cfg(feature = "http")]
 use racal::Queryable;
-use serde::{Deserialize, Serialize};
+use serde::Serialize;
 
 /// Gets details about a specific user
 #[cfg(feature = "http")]
@@ -100,7 +100,7 @@ impl Queryable<NoAuthentication, ResponseDataWrapper<UserAuth>> for LoginCredent
 
 /// Adds an user to the blocked users list
 #[cfg(feature = "ws")]
-#[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, serde::Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct BlockUser {
 	/// The ID of the user to add to the blocked users list
@@ -116,7 +116,7 @@ impl Requestable for BlockUser {
 
 /// Removes an user to the blocked users list
 #[cfg(feature = "ws")]
-#[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, serde::Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct UnBlockUser {
 	/// The ID of the user to remove to the blocked users list

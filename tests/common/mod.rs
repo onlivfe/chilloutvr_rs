@@ -1,4 +1,4 @@
-#![cfg(feature = "http_client")]
+#![cfg(any(feature = "http_client", feature = "ws_client"))]
 // Something's funky with checking if these are used or not.
 #![allow(dead_code)]
 use chilloutvr::{

@@ -1,22 +1,20 @@
 use super::ApiError;
 use crate::{model::WsResponse, query::SavedLoginCredentials};
-use futures_util::{SinkExt, TryStream};
+use futures_util::SinkExt;
 use serde::Serialize;
-use tokio::net::TcpStream;
 use tokio_stream::{
 	wrappers::{ReceiverStream, UnboundedReceiverStream},
 	StreamExt,
 };
-use tokio_tungstenite::{tungstenite::Message, MaybeTlsStream, WebSocketStream};
-pub type WsStream = WebSocketStream<MaybeTlsStream<TcpStream>>;
+use tokio_tungstenite::tungstenite::Message;
 
-pub type WsStreamReturn = Box<
-	dyn TryStream<Ok = WsResponse, Error = ApiError, Item = Result<WsResponse, ApiError>>,
->;
+type WsListenItem = Result<WsResponse, ApiError>;
+pub type ReceiverContainer =
+	std::sync::Arc<tokio::sync::Mutex<UnboundedReceiverStream<WsListenItem>>>;
 
-pub struct WsClient {
+pub struct Client {
 	send: tokio::sync::mpsc::Sender<Message>,
-	receive: UnboundedReceiverStream<Message>,
+	receive: ReceiverContainer,
 }
 
 enum WsMultiplexMessage {
@@ -24,7 +22,7 @@ enum WsMultiplexMessage {
 	Receive(Result<Message, ApiError>),
 }
 
-impl WsClient {
+impl Client {
 	pub async fn new(
 		user_agent: String,
 		auth: SavedLoginCredentials,
@@ -44,7 +42,7 @@ impl WsClient {
 			.header("User-Agent", user_agent.clone())
 			.header("Username", auth.username.clone())
 			.header("AccessKey", auth.access_key.clone())
-			.header("Host", crate::API_V1_WS_HOST)
+			.header("Host", crate::API_V1_HOSTNAME)
 			.header("Connection", "Upgrade")
 			.header("Upgrade", "websocket")
 			.header("Sec-WebSocket-Key", rand_base_64)
@@ -56,38 +54,48 @@ impl WsClient {
 				)
 			})?;
 
-		let (mut recv_sender, recv_receiver) =
-			tokio::sync::mpsc::unbounded_channel::<Message>();
+		let (recv_sender, recv_receiver) =
+			tokio::sync::mpsc::unbounded_channel::<WsListenItem>();
 		let (send_sender, send_receiver) = tokio::sync::mpsc::channel::<Message>(1);
 
-		let ws_client = WsClient {
-			receive: UnboundedReceiverStream::from(recv_receiver),
+		let ws_client = Self {
+			receive: std::sync::Arc::new(tokio::sync::Mutex::new(
+				UnboundedReceiverStream::from(recv_receiver),
+			)),
 			send: send_sender,
 		};
 
 		// Convert the channels to a `Stream`.
 
 		// TODO: listening to websocket requests
-		let (mut client, _) = tokio_tungstenite::connect_async(request).await?;
+		let (client, _) = tokio_tungstenite::connect_async(request).await?;
 		tokio::spawn(async move {
-			let mut multiplexing_stream = client
-				.map(|rec| {
-					WsMultiplexMessage::Receive(rec.map_err(|e| ApiError::Tungstenite(e)))
-				})
-				.merge(
-					ReceiverStream::from(send_receiver)
-						.map(|send| WsMultiplexMessage::Send(send)),
-				);
+			let (mut ws_sender, ws_receiver) = {
+				use futures_util::StreamExt;
 
-			while let Some(msg) = multiplexing_stream.next().await {
+				client.split()
+			};
+			let mut bidirectional_stream = ws_receiver
+				.map(|rec| {
+					WsMultiplexMessage::Receive(rec.map_err(ApiError::Tungstenite))
+				})
+				.merge(ReceiverStream::from(send_receiver).map(WsMultiplexMessage::Send));
+
+			while let Some(msg) = bidirectional_stream.next().await {
 				match msg {
 					WsMultiplexMessage::Receive(recv) => {
 						if let Ok(message) = recv {
-							recv_sender.send(message).ok();
+							if message.is_close() {
+								recv_sender.closed().await;
+							} else {
+								recv_sender.send(Self::ws_map_message(message)).ok();
+							}
+						} else {
+							recv_sender.closed().await;
 						}
 					}
 					WsMultiplexMessage::Send(send) => {
-						client.send(send).await;
+						ws_sender.send(send).await.ok();
 					}
 				}
 			}
@@ -116,21 +124,19 @@ impl WsClient {
 		let data = serde_json::to_vec(&data)?;
 		let data = tokio_tungstenite::tungstenite::Message::binary(data);
 
-		self.send.send(data).await;
+		self.send.send(data).await.map_err(|_| {
+			ApiError::Tungstenite(tokio_tungstenite::tungstenite::Error::AlreadyClosed)
+		})?;
 
 		Ok(())
 	}
 
-	pub async fn listen(&self) -> Result<WsStreamReturn, ApiError> {
-		todo!();
+	pub fn listen(&self) -> ReceiverContainer {
+		self.receive.clone()
 	}
 
 	/// Turns a WS receiving channel to an async stream
-	fn ws_recv_channel_stream(client: WsStream) -> WsStreamReturn {
-		let stream = client.map(|res| match res {
-			Ok(res) => Ok(serde_json::from_slice::<WsResponse>(&res.into_data())?),
-			Err(err) => Err(ApiError::Tungstenite(err)),
-		});
-		Box::new(stream)
+	fn ws_map_message(msg: Message) -> WsListenItem {
+		Ok(serde_json::from_slice::<WsResponse>(&msg.into_data())?)
 	}
 }

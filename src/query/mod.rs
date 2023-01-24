@@ -101,7 +101,7 @@ pub struct RequestWrapper<T> {
 
 /// Mark the connected user account as being online
 #[cfg(feature = "ws")]
-#[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Online;
 

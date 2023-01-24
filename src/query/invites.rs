@@ -1,12 +1,9 @@
 #[cfg(feature = "ws")]
 use super::{RequestType, Requestable};
-use serde::Deserialize;
-#[cfg(feature = "ws")]
-use serde::Serialize;
 
 /// Invite an user to the currently logged in user's instance
 #[cfg(feature = "ws")]
-#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, serde::Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Invite {
 	/// The ID that the invite is for
@@ -22,7 +19,7 @@ impl Requestable for Invite {
 
 /// Requests an invite from an user
 #[cfg(feature = "ws")]
-#[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, serde::Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct InviteRequest {
 	/// The ID that the request is for
@@ -39,7 +36,7 @@ impl Requestable for InviteRequest {
 /// Accepts an invite request,
 /// giving the requester an invite to the current user's instance
 #[cfg(feature = "ws")]
-#[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, serde::Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct AcceptInviteRequest {
 	/// The ID of the invite that this is a response to
@@ -55,7 +52,7 @@ impl Requestable for AcceptInviteRequest {
 
 /// Declines an invite request
 #[cfg(feature = "ws")]
-#[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, serde::Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct DeclineInviteRequest {
 	/// The ID of the invite that this is a response to
@@ -71,7 +68,7 @@ impl Requestable for DeclineInviteRequest {
 
 /// Marks an invite as expired
 #[cfg(feature = "ws")]
-#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, serde::Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ExpireInvite {
 	/// The ID of the invite to mark as expired
