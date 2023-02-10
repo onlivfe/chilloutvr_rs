@@ -41,7 +41,7 @@ pub struct WorldInstance {
 #[serde(rename_all = "camelCase")]
 pub struct WorldDetailsResponse {
 	#[serde(default)]
-	#[cfg_attr(not(feature = "strict"), serde_as(as = "serde_with::VecSkipError<_>"))]
+	#[cfg_attr(not(feature = "debug"), serde_as(as = "serde_with::VecSkipError<_>"))]
 	pub instances: Vec<WorldInstance>,
 	#[serde(flatten)]
 	pub world: WorldDetails,

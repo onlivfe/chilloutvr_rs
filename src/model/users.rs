@@ -61,7 +61,7 @@ impl std::fmt::Debug for UserAuth {
 #[serde_with::serde_as]
 #[derive(Debug, Clone, Deserialize, PartialEq, Eq, Hash)]
 pub struct Friends(
-	#[cfg_attr(not(feature = "strict"), serde_as(as = "serde_with::VecSkipError<_>"))]
+	#[cfg_attr(not(feature = "debug"), serde_as(as = "serde_with::VecSkipError<_>"))]
 	pub Vec<AssetBaseWithCategories>,
 );
 
@@ -69,7 +69,7 @@ pub struct Friends(
 #[serde_with::serde_as]
 #[derive(Debug, Clone, Deserialize, PartialEq, Eq, Hash)]
 pub struct FriendRequests(
-	#[cfg_attr(not(feature = "strict"), serde_as(as = "serde_with::VecSkipError<_>"))]
+	#[cfg_attr(not(feature = "debug"), serde_as(as = "serde_with::VecSkipError<_>"))]
 	pub Vec<AssetBase>,
 );
 
@@ -86,6 +86,6 @@ pub struct UserOnlineStatusChange {
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct OnlineUserStatusChanges(
-	#[cfg_attr(not(feature = "strict"), serde_as(as = "serde_with::VecSkipError<_>"))]
+	#[cfg_attr(not(feature = "debug"), serde_as(as = "serde_with::VecSkipError<_>"))]
 	Vec<UserOnlineStatusChange>,
 );

@@ -20,7 +20,7 @@ pub struct AssetBaseWithTags {
 	pub name: String,
 	pub image_url: String,
 	#[serde(default)]
-	#[cfg_attr(not(feature = "strict"), serde_as(as = "serde_with::VecSkipError<_>"))]
+	#[cfg_attr(not(feature = "debug"), serde_as(as = "serde_with::VecSkipError<_>"))]
 	pub tags: Vec<String>,
 }
 
@@ -33,7 +33,7 @@ pub struct AssetBaseWithCategories {
 	pub name: String,
 	pub image_url: String,
 	#[serde(default)]
-	#[cfg_attr(not(feature = "strict"), serde_as(as = "serde_with::VecSkipError<_>"))]
+	#[cfg_attr(not(feature = "debug"), serde_as(as = "serde_with::VecSkipError<_>"))]
 	pub categories: Vec<String>,
 }
 
@@ -66,7 +66,7 @@ pub struct AvatarDetails {
 	#[serde(rename = "authorGuid")]
 	pub author_id: crate::model::id::User,
 	#[serde(default)]
-	#[cfg_attr(not(feature = "strict"), serde_as(as = "serde_with::VecSkipError<_>"))]
+	#[cfg_attr(not(feature = "debug"), serde_as(as = "serde_with::VecSkipError<_>"))]
 	pub categories: Vec<String>,
 }
 

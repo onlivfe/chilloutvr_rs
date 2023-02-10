@@ -27,7 +27,7 @@ pub const API_V1_HTTP_URL: &str = "https://api.abinteractive.net/1";
 pub const API_V1_HOSTNAME: &str = "api.abinteractive.net";
 /// The WS API endpoint
 pub const API_V1_WS_URL: &str = "wss://api.abinteractive.net/1/users/ws";
-/// The gateway endpoint... Website/old API probably?
+// The gateway endpoint... Website/old API probably?
 //pub const API_V1_GAME_DATA: &str = "https://gateway.abi.network/v1/IGameData";
 
 // TODO: Complete docs

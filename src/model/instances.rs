@@ -40,7 +40,7 @@ pub struct InstanceDetails {
 	pub max_players: u32,
 	pub current_player_count: u32,
 	#[serde(default)]
-	#[cfg_attr(not(feature = "strict"), serde_as(as = "serde_with::VecSkipError<_>"))]
+	#[cfg_attr(not(feature = "debug"), serde_as(as = "serde_with::VecSkipError<_>"))]
 	pub members: Vec<UserBase>,
 }
 

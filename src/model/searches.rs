@@ -42,6 +42,6 @@ pub struct SearchResult {
 #[serde_with::serde_as]
 #[derive(Debug, Clone, Deserialize)]
 pub struct SearchResults(
-	#[cfg_attr(not(feature = "strict"), serde_as(as = "serde_with::VecSkipError<_>"))]
+	#[cfg_attr(not(feature = "debug"), serde_as(as = "serde_with::VecSkipError<_>"))]
 	pub Vec<SearchResult>,
 );
