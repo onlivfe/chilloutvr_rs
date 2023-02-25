@@ -8,7 +8,7 @@
 
 #![cfg_attr(nightly, feature(doc_auto_cfg))]
 #![deny(clippy::all)]
-#![deny(unsafe_code)]
+#![forbid(unsafe_code)]
 #![deny(clippy::cargo)]
 #![warn(missing_docs)]
 #![deny(rustdoc::invalid_html_tags)]

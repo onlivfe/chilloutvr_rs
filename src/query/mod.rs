@@ -24,6 +24,18 @@ pub use invites::*;
 /// into account, thus not using `()` for the API state.
 pub struct NoAuthentication {}
 
+impl From<&Self> for NoAuthentication {
+	fn from(_: &Self) -> Self {
+		Self {}
+	}
+}
+
+impl From<&SavedLoginCredentials> for NoAuthentication {
+	fn from(_: &SavedLoginCredentials) -> Self {
+		Self {}
+	}
+}
+
 /// Supports the CVR custom API "unwrapping" the data
 #[cfg(feature = "http")]
 pub trait CvrApiUnwrapping<UnwrappedType>: DeserializeOwned {

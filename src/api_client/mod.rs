@@ -103,30 +103,10 @@ pub struct AuthenticatedCVR {
 	auth: SavedLoginCredentials,
 }
 
-#[doc(hidden)]
 #[cfg(feature = "http_client")]
-pub enum AuthenticatedSupportedApiStates {
-	Unauthenticated,
-	Authenticated(SavedLoginCredentials),
-}
-
-#[cfg(feature = "http_client")]
-impl From<NoAuthentication> for AuthenticatedSupportedApiStates {
-	fn from(_: NoAuthentication) -> Self {
-		Self::Unauthenticated
-	}
-}
-
-#[cfg(feature = "http_client")]
-impl From<SavedLoginCredentials> for AuthenticatedSupportedApiStates {
-	fn from(auth: SavedLoginCredentials) -> Self {
-		Self::Authenticated(auth)
-	}
-}
-
-#[cfg(feature = "http_client")]
-async fn base_query<R, FromState, T>(
+async fn base_query<R, FromState: Send, T>(
 	http: &Client,
+	api_state: FromState,
 	rate_limiter: &NormalRateLimiter,
 	queryable: T,
 ) -> Result<R, ApiError>
@@ -135,7 +115,7 @@ where
 	T: Queryable<FromState, R> + Send + Sync,
 {
 	let mut request = http.request(
-		match queryable.method() {
+		match queryable.method(&api_state) {
 			RequestMethod::Get => reqwest::Method::GET,
 			RequestMethod::Head => reqwest::Method::HEAD,
 			RequestMethod::Patch => reqwest::Method::PATCH,
@@ -143,9 +123,9 @@ where
 			RequestMethod::Put => reqwest::Method::PUT,
 			RequestMethod::Delete => reqwest::Method::DELETE,
 		},
-		queryable.url(),
+		queryable.url(&api_state),
 	);
-	if let Some(body) = queryable.body() {
+	if let Some(body) = queryable.body(&api_state) {
 		request = request.body(body?);
 	}
 
@@ -153,16 +133,8 @@ where
 	let response = request.send().await?.error_for_status()?;
 	// TODO: Figure out if there are any extra rate limit headers to respect
 
-	#[cfg(feature = "debug")]
-	{
-		let text = response.text().await?;
-		dbg!(&text);
-		Ok(serde_json::from_str::<R>(&text)?)
-	}
-	#[cfg(not(feature = "debug"))]
-	{
-		Ok(response.json::<R>().await?)
-	}
+	let bytes = response.bytes().await?;
+	Ok(queryable.deserialize(&bytes)?)
 }
 
 #[cfg(feature = "http_client")]
@@ -251,16 +223,19 @@ impl AuthenticatedCVR {
 	///
 	/// If something with the request failed.
 	#[cfg(feature = "http_client")]
-	pub async fn query<ReturnType, WrappedType, FromState, T>(
-		&self,
+	pub async fn query<'a, ReturnType, WrappedType, FromState, T>(
+		&'a self,
 		queryable: T,
 	) -> Result<ReturnType, ApiError>
 	where
 		WrappedType: CvrApiUnwrapping<ReturnType> + DeserializeOwned,
-		FromState: Into<AuthenticatedSupportedApiStates>,
+		FromState: From<&'a SavedLoginCredentials> + Send,
 		T: Queryable<FromState, WrappedType> + Send + Sync,
 	{
-		Ok(self.query_without_unwrapping(queryable).await?.unwrap_data())
+		let state = FromState::from(&self.auth);
+		Ok(base_query(&self.http, state, &self.http_rate_limiter, queryable)
+			.await?
+			.unwrap_data())
 	}
 
 	/// Sends a query to the CVR API
@@ -269,16 +244,17 @@ impl AuthenticatedCVR {
 	///
 	/// If something with the request failed.
 	#[cfg(feature = "http_client")]
-	pub async fn query_without_unwrapping<R, FromState, T>(
-		&self,
+	pub async fn query_without_unwrapping<'a, R, FromState, T>(
+		&'a self,
 		queryable: T,
 	) -> Result<R, ApiError>
 	where
 		R: DeserializeOwned,
-		FromState: Into<AuthenticatedSupportedApiStates>,
+		FromState: From<&'a SavedLoginCredentials> + Send,
 		T: Queryable<FromState, R> + Send + Sync,
 	{
-		base_query(&self.http, &self.http_rate_limiter, queryable).await
+		let state = FromState::from(&self.auth);
+		base_query(&self.http, state, &self.http_rate_limiter, queryable).await
 	}
 
 	/// Sends a WS message to the CVR API.
@@ -393,16 +369,19 @@ impl UnauthenticatedCVR {
 	///
 	/// If something with the request failed.
 	#[cfg(feature = "http_client")]
-	pub async fn query<ReturnType, WrappedType, FromState, T>(
+	pub async fn query<'a, ReturnType, WrappedType, FromState, T>(
 		&self,
 		queryable: T,
 	) -> Result<ReturnType, ApiError>
 	where
 		WrappedType: CvrApiUnwrapping<ReturnType> + DeserializeOwned,
-		FromState: Into<NoAuthentication>,
+		FromState: From<&'a NoAuthentication> + Send,
 		T: Queryable<FromState, WrappedType> + Send + Sync,
 	{
-		Ok(self.query_without_unwrapping(queryable).await?.unwrap_data())
+		let state = FromState::from(&NoAuthentication {});
+		Ok(base_query(&self.http, state, &self.http_rate_limiter, queryable)
+			.await?
+			.unwrap_data())
 	}
 
 	/// Sends a query to the CVR API
@@ -411,15 +390,16 @@ impl UnauthenticatedCVR {
 	///
 	/// If something with the request failed.
 	#[cfg(feature = "http_client")]
-	pub async fn query_without_unwrapping<R, FromState, T>(
-		&self,
+	pub async fn query_without_unwrapping<'a, R, FromState, T>(
+		&'a self,
 		queryable: T,
 	) -> Result<R, ApiError>
 	where
 		R: DeserializeOwned,
-		FromState: Into<NoAuthentication>,
+		FromState: From<&'a NoAuthentication> + Send,
 		T: Queryable<FromState, R> + Send + Sync,
 	{
-		base_query(&self.http, &self.http_rate_limiter, queryable).await
+		let state = FromState::from(&NoAuthentication {});
+		base_query(&self.http, state, &self.http_rate_limiter, queryable).await
 	}
 }

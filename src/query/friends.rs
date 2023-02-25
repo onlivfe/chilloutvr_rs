@@ -15,7 +15,7 @@ pub struct FriendList();
 
 #[cfg(feature = "http")]
 impl Queryable<SavedLoginCredentials, ResponseDataWrapper<Friends>> for FriendList {
-	fn url(&self) -> String {
+	fn url(&self, _: &SavedLoginCredentials) -> String {
 		format!("{}/friends", crate::API_V1_HTTP_URL)
 	}
 }
@@ -29,7 +29,7 @@ pub struct FriendRequests();
 impl Queryable<SavedLoginCredentials, ResponseDataWrapper<crate::model::FriendRequests>>
 	for FriendRequests
 {
-	fn url(&self) -> String {
+	fn url(&self, _: &SavedLoginCredentials) -> String {
 		format!("{}/friends/requests", crate::API_V1_HTTP_URL)
 	}
 }

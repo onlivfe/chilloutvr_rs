@@ -19,7 +19,7 @@ pub struct WorldDetailsQuery {
 impl Queryable<NoAuthentication, ResponseDataWrapper<WorldDetailsResponse>>
 	for WorldDetailsQuery
 {
-	fn url(&self) -> String {
+	fn url(&self, _: &NoAuthentication) -> String {
 		format!("{}/worlds/{}", crate::API_V1_HTTP_URL, &self.world_id)
 	}
 }
@@ -37,7 +37,7 @@ pub struct WorldListQuery {
 impl Queryable<NoAuthentication, ResponseDataWrapper<Vec<WorldInstance>>>
 	for WorldListQuery
 {
-	fn url(&self) -> String {
+	fn url(&self, _: &NoAuthentication) -> String {
 		format!("{}/worlds/list/{}", crate::API_V1_HTTP_URL, &self.category)
 	}
 }

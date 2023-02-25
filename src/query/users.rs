@@ -21,7 +21,7 @@ pub struct UserDetails {
 impl Queryable<NoAuthentication, ResponseDataWrapper<crate::model::UserDetails>>
 	for UserDetails
 {
-	fn url(&self) -> String {
+	fn url(&self, _: &NoAuthentication) -> String {
 		format!("{}/users/{}", crate::API_V1_HTTP_URL, &self.user_id)
 	}
 }
@@ -75,6 +75,12 @@ impl From<UserAuth> for SavedLoginCredentials {
 	}
 }
 
+impl From<&Self> for SavedLoginCredentials {
+	fn from(value: &Self) -> Self {
+		Self { access_key: value.access_key.clone(), username: value.username.clone() }
+	}
+}
+
 /// Authentication to login to CVR
 #[cfg(feature = "http")]
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize)]
@@ -89,11 +95,11 @@ pub enum AuthType {
 
 #[cfg(feature = "http")]
 impl Queryable<NoAuthentication, ResponseDataWrapper<UserAuth>> for LoginCredentials {
-	fn url(&self) -> String {
+	fn url(&self, _: &NoAuthentication) -> String {
 		format!("{}/users/auth", crate::API_V1_HTTP_URL)
 	}
 
-	fn body(&self) -> Option<serde_json::Result<Vec<u8>>> {
+	fn body(&self, _: &NoAuthentication) -> Option<serde_json::Result<Vec<u8>>> {
 		Some(serde_json::to_vec(self))
 	}
 }

@@ -21,7 +21,7 @@ pub struct Instance {
 impl Queryable<NoAuthentication, ResponseDataWrapper<ExtendedInstanceDetails>>
 	for Instance
 {
-	fn url(&self) -> String {
+	fn url(&self, _: &NoAuthentication) -> String {
 		format!("{}/instances/{}", crate::API_V1_HTTP_URL, &self.instance_id)
 	}
 }

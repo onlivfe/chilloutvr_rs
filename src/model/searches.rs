@@ -1,5 +1,4 @@
 use serde::{Deserialize, Serialize};
-use serde_with::serde_as;
 
 #[cfg(feature = "http")]
 #[derive(Clone, Debug, PartialEq, Eq, Hash, Deserialize, Serialize)]

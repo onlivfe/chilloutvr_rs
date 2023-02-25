@@ -17,7 +17,7 @@ pub struct Search {
 
 #[cfg(feature = "http")]
 impl Queryable<SavedLoginCredentials, ResponseDataWrapper<SearchResults>> for Search {
-	fn url(&self) -> String {
+	fn url(&self, _: &SavedLoginCredentials) -> String {
 		format!("{}/search/{}", crate::API_V1_HTTP_URL, &self.term)
 	}
 }
