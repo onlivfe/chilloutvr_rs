@@ -114,5 +114,5 @@ pub struct UserOnlineStatusChange {
 /// A list of user online status change events
 pub struct OnlineUserStatusChanges(
 	#[cfg_attr(not(feature = "debug"), serde_as(as = "serde_with::VecSkipError<_>"))]
-	Vec<UserOnlineStatusChange>,
+	pub Vec<UserOnlineStatusChange>,
 );

@@ -42,7 +42,7 @@ pub struct Invite {
 /// A list of invites
 pub struct Invites(
 	#[cfg_attr(not(feature = "debug"), serde_as(as = "serde_with::VecSkipError<_>"))]
-	Vec<Invite>,
+	pub Vec<Invite>,
 );
 
 #[cfg(feature = "ws")]
@@ -52,5 +52,5 @@ pub struct Invites(
 /// A list of invite requests
 pub struct InviteRequests(
 	#[cfg_attr(not(feature = "debug"), serde_as(as = "serde_with::VecSkipError<_>"))]
-	Vec<InviteRequest>,
+	pub Vec<InviteRequest>,
 );
