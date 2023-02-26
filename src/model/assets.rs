@@ -15,25 +15,129 @@ use time::OffsetDateTime;
 	Serialize,
 )]
 #[serde(rename_all = "lowercase", from = "String")]
-#[allow(missing_docs)]
-/// A tag of an asset
+/// A tag of an asset, see [the CCK's Content Tags page](https://developers.abinteractive.net/cck/content-tags/)
+///
+/// The docs are copied here for convenience, but they might get out of date,
+/// so check the source if you're unsure.
 pub enum AssetTag {
+	/// If your content contains gore of any kind.
+	///
+	/// # Examples
+	///
+	/// - Blood from a wound or cut
+	/// - Excessive violence
+	/// - Excessive detail about e.g. an injury
+	///
+	/// # Tag Locked
+	///
+	/// This tag is locked behind the [Mature Content Access DLC](https://developers.abinteractive.net/chilloutvr/faq/mature-content-access-dlc/) which is free on steam.
 	Gore,
-	Horror,
-	Jumpscare,
-	Nudity,
-	Suggestive,
+	/// Use this tag if your avatar contains violence.
+	///
+	/// # Examples
+	///
+	/// - Injuries
+	/// - Damaging or destroying an object/character
+	/// - Usage of firearms
 	Violence,
-	ContainsMusic,
-	ExtremelyBright,
-	ExtremelyHuge,
+	/// Use this tag if your content contains Horror elements.
+	///
+	/// # Examples
+	///
+	/// - Scary visual effect
+	/// - Scary sound effects
+	/// - Jump scares
+	Horror,
+	/// A jump scare is a technique often used in horror films and video games,
+	/// intended to scare the audience by surprising them with an abrupt change
+	/// in image or event, usually co-occurring with a loud, frightening sound.
+	Jumpscare,
+	/// Use this tag if your avatar or spawnable/prop is very small.
 	ExtremelySmall,
+	/// Just like [Excessively Small](Self::ExtremelySmall),
+	/// but the other way around.
+	/// If your avatar or spawnable/prop is very huge.
+	ExtremelyHuge,
+	/// The Suggestive Tag must be used whenever there is large amounts of
+	/// visible skin or a sexually suggestive pose or animation.
+	///
+	/// # Examples
+	///
+	/// - Bikini or Swimsuit outfits
+	Suggestive,
+	/// The Nudity tag is to be applied to all content not to be seen by
+	/// children. It is mainly meant for sexual appealing content.
+	///
+	/// # Examples
+	///
+	/// - Genitals
+	/// - Nipples
+	/// - Ass without pants
+	/// - Sex toys
+	///
+	/// # Tag Locked
+	///
+	/// This tag is locked behind the [Mature Content Access DLC](https://developers.abinteractive.net/chilloutvr/faq/mature-content-access-dlc/) which is free on steam.
+	Nudity,
+	/// Extremely bright is pretty much self-explanatory,
+	/// use it, when you have a lot of bright materials on your content.
+	///
+	/// # Examples
+	///
+	/// - High emissive values on materials
+	/// - High amount of bloom
+	ExtremelyBright,
+	/// Use this tag, if your content contains rapidly changing/flashing colors.
 	FlashingColors,
+	/// This tag is similar to [Flashing Colors](Self::FlashingColors), but is
+	/// not limited to color.
+	///
+	/// # Examples
+	///
+	/// - Lights
+	/// - Materials
+	/// - Textures
+	/// - Colors
+	///
+	/// # Tip
+	///
+	/// Flashing Colors and Flashing Lights is commonly used together.
+	/// The most important reason for this tag's existence is due to health
+	/// conditions players might have. So make sure to use those tags whenever
+	/// something is rapidly changing or flashing.
 	FlashingLights,
-	LoudAudio,
+	/// Use this tag, if your content contains particle systems.
 	ParticleSystems,
+	/// If your content contains any kind of screen effects use this tag.
+	///
+	/// # Examples
+	///
+	/// - Screen space shader effects
+	/// - Screen space animation
+	/// - Flashy animations
 	ScreenEffects,
+	/// Use this tag if your created content, specifically avatars and
+	/// spawnables/props, contains music.
+	/// This tag was not made because of copyright or any other legal reasons,
+	/// this tag, including all others as well,
+	/// does not protect your content from getting copyright claimed and/or
+	/// taken down because of legal reasons.
+	///
+	/// # Examples
+	///
+	/// - User playing music on his avatar
+	/// - User playing music using a prop
+	ContainsMusic,
+	/// The Loud Audio Tag is used for content which contains loud audio.
+	/// Loud audio can mean, but is not limited to,
+	/// vastly louder sound effects or music playing.
+	LoudAudio,
+	/// This tag is specifically made for audio sources which immediately play
+	/// after the content is loaded, aka. spawn audios.
 	SpawnAudio,
+	/// This tag is used for audio sources which have a long distance fall off.
+	/// This means that you can hear them in game, even while being far or very
+	/// far away from its origin.
 	LongRangeAudio,
 	#[strum(disabled)]
 	/// A new unsupported or nonstandard or etc tag
