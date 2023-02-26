@@ -2,6 +2,7 @@ use super::ApiError;
 use crate::{model::WsResponse, query::SavedLoginCredentials};
 use futures_util::SinkExt;
 use serde::Serialize;
+use tokio::task::JoinHandle;
 use tokio_stream::{
 	wrappers::{ReceiverStream, UnboundedReceiverStream},
 	StreamExt,
@@ -15,6 +16,7 @@ pub type ReceiverContainer =
 pub struct Client {
 	send: tokio::sync::mpsc::Sender<Message>,
 	receive: ReceiverContainer,
+	handle: JoinHandle<()>,
 }
 
 enum WsMultiplexMessage {
@@ -58,18 +60,11 @@ impl Client {
 			tokio::sync::mpsc::unbounded_channel::<WsListenItem>();
 		let (send_sender, send_receiver) = tokio::sync::mpsc::channel::<Message>(1);
 
-		let ws_client = Self {
-			receive: std::sync::Arc::new(tokio::sync::Mutex::new(
-				UnboundedReceiverStream::from(recv_receiver),
-			)),
-			send: send_sender,
-		};
-
 		// Convert the channels to a `Stream`.
 
 		// TODO: listening to websocket requests
 		let (client, _) = tokio_tungstenite::connect_async(request).await?;
-		tokio::spawn(async move {
+		let handle = tokio::spawn(async move {
 			let (mut ws_sender, ws_receiver) = {
 				use futures_util::StreamExt;
 
@@ -100,6 +95,14 @@ impl Client {
 				}
 			}
 		});
+
+		let ws_client = Self {
+			receive: std::sync::Arc::new(tokio::sync::Mutex::new(
+				UnboundedReceiverStream::from(recv_receiver),
+			)),
+			send: send_sender,
+			handle,
+		};
 
 		Ok(ws_client)
 	}
@@ -135,8 +138,14 @@ impl Client {
 		self.receive.clone()
 	}
 
-	/// Turns a WS receiving channel to an async stream
+	/// Turns a WS receiving channel to an async streams
 	fn ws_map_message(msg: Message) -> WsListenItem {
 		Ok(serde_json::from_slice::<WsResponse>(&msg.into_data())?)
+	}
+}
+
+impl Drop for Client {
+	fn drop(&mut self) {
+		self.handle.abort();
 	}
 }

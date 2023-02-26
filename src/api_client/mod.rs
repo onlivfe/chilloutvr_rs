@@ -257,11 +257,58 @@ impl AuthenticatedCVR {
 		base_query(&self.http, state, &self.http_rate_limiter, queryable).await
 	}
 
+	/// Opens the WebSocket connection if it wasn't already open
+	///
+	/// # Errors
+	///
+	/// If opening the WS connection fails
+	#[cfg(feature = "ws_client")]
+	pub async fn ws_connect(&self) -> Result<(), ApiError> {
+		{
+			let lock = self.ws.read().await;
+			if let Some(ws_client) = &*lock {
+				if ws_client.is_ok() {
+					return Ok(());
+				}
+			}
+		}
+
+		#[cfg(feature = "http_client")]
+		self.http_rate_limiter.until_ready().await;
+		let client = ws::Client::new(self.user_agent.clone(), self.auth.clone()).await?;
+		let mut lock = self.ws.write().await;
+		*lock = Some(client);
+
+		Ok(())
+	}
+
+	/// Closes the WebSocket connection if it is open
+	#[cfg(feature = "ws_client")]
+	pub async fn ws_disconnect(&self) {
+		{
+			let mut lock = self.ws.write().await;
+			*lock = None;
+		}
+	}
+
+	/// If the WS client is connected
+	#[cfg(feature = "ws_client")]
+	pub async fn ws_is_connected(&self) -> bool {
+		let lock = self.ws.read().await;
+		if let Some(ws_client) = &*lock {
+			if ws_client.is_ok() {
+				return true;
+			}
+		}
+		false
+	}
+
 	/// Sends a WS message to the CVR API.
 	///
 	/// # Errors
 	///
-	/// If something with the request failed.
+	/// If something with the request failed,
+	/// or if the WS connection wasn't already open and creating it failed.
 	#[cfg(feature = "ws_client")]
 	pub async fn send(
 		&self,
@@ -276,6 +323,8 @@ impl AuthenticatedCVR {
 			}
 		}
 
+		#[cfg(feature = "http_client")]
+		self.http_rate_limiter.until_ready().await;
 		let client = ws::Client::new(self.user_agent.clone(), self.auth.clone()).await?;
 		let mut lock = self.ws.write().await;
 		*lock = Some(client);
@@ -287,11 +336,12 @@ impl AuthenticatedCVR {
 			.await
 	}
 
-	/// Listens to events, locks the client from sending events.
+	/// Listens to events from the WS connection
 	///
 	/// # Errors
 	///
-	/// If creating the client fails
+	/// If creating the client fails,
+	/// or if the WS connection wasn't already open and creating it failed.
 	#[cfg(feature = "ws_client")]
 	pub async fn listen(&self) -> Result<ws::ReceiverContainer, ApiError> {
 		{
@@ -303,6 +353,8 @@ impl AuthenticatedCVR {
 			}
 		}
 
+		#[cfg(feature = "http_client")]
+		self.http_rate_limiter.until_ready().await;
 		let client = ws::Client::new(self.user_agent.clone(), self.auth.clone()).await?;
 		let mut lock = self.ws.write().await;
 		*lock = Some(client);
