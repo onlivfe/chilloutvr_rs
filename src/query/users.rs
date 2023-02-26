@@ -14,7 +14,7 @@ use serde::Serialize;
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct UserDetails {
 	/// The ID of the user to get more information about
-	pub user_id: crate::model::id::User,
+	pub user_id: crate::id::User,
 }
 
 #[cfg(feature = "http")]
@@ -110,7 +110,7 @@ impl Queryable<NoAuthentication, ResponseDataWrapper<UserAuth>> for LoginCredent
 #[serde(rename_all = "camelCase")]
 pub struct BlockUser {
 	/// The ID of the user to add to the blocked users list
-	pub id: crate::model::id::Invite,
+	pub id: crate::id::Invite,
 }
 
 #[cfg(feature = "ws")]
@@ -126,7 +126,7 @@ impl Requestable for BlockUser {
 #[serde(rename_all = "camelCase")]
 pub struct UnBlockUser {
 	/// The ID of the user to remove to the blocked users list
-	pub id: crate::model::id::Invite,
+	pub id: crate::id::Invite,
 }
 
 #[cfg(feature = "ws")]

@@ -4,8 +4,8 @@
 //! compare different types of CVR IDs with each other like so:
 //!
 //! ```compile_fail,E0308
-//! let user_id = chilloutvr::model::id::User::try_from("totally-legit-id").unwrap();
-//! let record_id = chilloutvr::model::id::Instance::try_from("totally-legit-id").unwrap();
+//! let user_id = chilloutvr::id::User::try_from("totally-legit-id").unwrap();
+//! let record_id = chilloutvr::id::Instance::try_from("totally-legit-id").unwrap();
 //! assert!(user_id != record_id, "can't compare different types of IDs")
 //! ```
 //!
@@ -28,7 +28,7 @@ macro_rules! add_id {
 		/// # Example usage
 		///
 		/// ```
-		#[doc = concat!("use chilloutvr::model::id::", stringify!($name), ";")]
+		#[doc = concat!("use chilloutvr::id::", stringify!($name), ";")]
 		#[doc = concat!("let id1 = ", stringify!($name), "::try_from(\"totally-legit-id\").unwrap();")]
 		#[doc = concat!("let id2 = ", stringify!($name), "::try_from(\"tother-legit-id\").unwrap();")]
 		/// assert!(id1 != id2);
@@ -121,18 +121,19 @@ macro_rules! add_id {
 
 add_id!(User);
 add_id!(Instance);
-add_id!(Asset);
 add_id!(Invite);
+add_id!(Asset);
+add_id!(File);
 
 /// Any of the CVR IDs
 ///
 /// # Example usage
 ///
 /// ```
-/// let id1 = chilloutvr::model::id::User::try_from("totally-legit-id").unwrap();
-/// let id1: chilloutvr::model::id::Any = id1.into();
-/// let id2 = chilloutvr::model::id::Instance::try_from("totally-legit-id").unwrap();
-/// let id2: chilloutvr::model::id::Any = id2.into();
+/// let id1 = chilloutvr::id::User::try_from("totally-legit-id").unwrap();
+/// let id1: chilloutvr::id::Any = id1.into();
+/// let id2 = chilloutvr::id::Instance::try_from("totally-legit-id").unwrap();
+/// let id2: chilloutvr::id::Any = id2.into();
 /// assert!(id1 != id2);
 /// ```
 #[cfg(any(feature = "http", feature = "ws"))]
@@ -147,6 +148,8 @@ pub enum Any {
 	Asset(Asset),
 	/// An invite ID
 	Invite(Invite),
+	/// A file's ID
+	File(File),
 }
 
 #[cfg(any(feature = "http", feature = "ws"))]
@@ -159,6 +162,7 @@ impl AsRef<str> for Any {
 			Self::Instance(v) => v.as_ref(),
 			Self::Asset(v) => v.as_ref(),
 			Self::Invite(v) => v.as_ref(),
+			Self::File(v) => v.as_ref(),
 		}
 	}
 }

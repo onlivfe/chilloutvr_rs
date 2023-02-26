@@ -8,36 +8,57 @@ use super::AssetBaseWithCategories;
 #[cfg(any(feature = "http", feature = "ws"))]
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
+/// Basic details about an user
 pub struct UserBase {
-	pub id: crate::model::id::User,
+	/// The ID of the user
+	pub id: crate::id::User,
+	/// The display name of the user
 	pub name: String,
+	/// The user's icon
 	pub image_url: String,
 }
 
 #[cfg(feature = "http")]
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
+/// Standard details about an user
 pub struct UserDetails {
 	#[serde(flatten)]
+	/// The basic details of the user
 	pub base: UserBase,
+	/// The users rank
 	pub rank: String,
+	/// The users featured badge
 	pub featured_badge: FeaturedItem,
+	/// The users featured group
 	pub featured_group: FeaturedItem,
+	/// The users current avatar
 	pub avatar: AssetBase,
 }
 
 #[cfg(feature = "http")]
 #[derive(Clone, PartialEq, Eq, Hash, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
+/// Authentication success response
 pub struct UserAuth {
+	/// The username that the authentication is for
 	pub username: String,
+	/// The access key to authenticate future requests with
 	pub access_key: String,
-	pub user_id: crate::model::id::User,
-	pub current_avatar: crate::model::id::Asset,
-	pub current_home_world: crate::model::id::Asset,
+	/// The ID of the user that the authentication is for
+	pub user_id: crate::id::User,
+	/// The ID of the avatar that the user had selected at the time of the
+	/// response
+	pub current_avatar: crate::id::Asset,
+	/// The ID of the home world that the user had selected at the time of the
+	/// response
+	pub current_home_world: crate::id::Asset,
+	/// An URL to a video downloader executable
 	pub video_url_resolver_executable: String,
+	/// An URL to a hash file for the video downloader executable
 	pub video_url_resolver_hashes: String,
 	#[serde(default)]
+	/// Users that were blocked by the user at the time of the response
 	pub blocked_users: Vec<String>,
 }
 
@@ -60,6 +81,7 @@ impl std::fmt::Debug for UserAuth {
 #[cfg(feature = "http")]
 #[serde_with::serde_as]
 #[derive(Debug, Clone, Deserialize, PartialEq, Eq, Hash)]
+/// A list of friends
 pub struct Friends(
 	#[cfg_attr(not(feature = "debug"), serde_as(as = "serde_with::VecSkipError<_>"))]
 	pub Vec<AssetBaseWithCategories>,
@@ -68,6 +90,7 @@ pub struct Friends(
 #[cfg(feature = "http")]
 #[serde_with::serde_as]
 #[derive(Debug, Clone, Deserialize, PartialEq, Eq, Hash)]
+/// A list of friend requests
 pub struct FriendRequests(
 	#[cfg_attr(not(feature = "debug"), serde_as(as = "serde_with::VecSkipError<_>"))]
 	pub Vec<AssetBase>,
@@ -76,8 +99,11 @@ pub struct FriendRequests(
 #[cfg(feature = "ws")]
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
+/// A change event of an user's status
 pub struct UserOnlineStatusChange {
-	pub id: crate::model::id::User,
+	/// The ID of the user
+	pub id: crate::id::User,
+	/// If the user is now online or offline
 	pub is_online: bool,
 }
 
@@ -85,6 +111,7 @@ pub struct UserOnlineStatusChange {
 #[serde_with::serde_as]
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
+/// A list of user online status change events
 pub struct OnlineUserStatusChanges(
 	#[cfg_attr(not(feature = "debug"), serde_as(as = "serde_with::VecSkipError<_>"))]
 	Vec<UserOnlineStatusChange>,

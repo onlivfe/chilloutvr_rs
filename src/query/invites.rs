@@ -7,7 +7,7 @@ use super::{RequestType, Requestable};
 #[serde(rename_all = "camelCase")]
 pub struct Invite {
 	/// The ID that the invite is for
-	pub id: crate::model::id::User,
+	pub id: crate::id::User,
 }
 
 #[cfg(feature = "ws")]
@@ -23,7 +23,7 @@ impl Requestable for Invite {
 #[serde(rename_all = "camelCase")]
 pub struct InviteRequest {
 	/// The ID that the request is for
-	pub id: crate::model::id::User,
+	pub id: crate::id::User,
 }
 
 #[cfg(feature = "ws")]
@@ -40,7 +40,7 @@ impl Requestable for InviteRequest {
 #[serde(rename_all = "camelCase")]
 pub struct AcceptInviteRequest {
 	/// The ID of the invite that this is a response to
-	pub id: crate::model::id::Invite,
+	pub id: crate::id::Invite,
 }
 
 #[cfg(feature = "ws")]
@@ -56,7 +56,7 @@ impl Requestable for AcceptInviteRequest {
 #[serde(rename_all = "camelCase")]
 pub struct DeclineInviteRequest {
 	/// The ID of the invite that this is a response to
-	pub id: crate::model::id::Invite,
+	pub id: crate::id::Invite,
 }
 
 #[cfg(feature = "ws")]
@@ -72,7 +72,7 @@ impl Requestable for DeclineInviteRequest {
 #[serde(rename_all = "camelCase")]
 pub struct ExpireInvite {
 	/// The ID of the invite to mark as expired
-	pub id: crate::model::id::Invite,
+	pub id: crate::id::Invite,
 }
 
 #[cfg(feature = "ws")]

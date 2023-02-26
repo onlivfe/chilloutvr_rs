@@ -14,7 +14,7 @@ use crate::{
 #[serde(rename_all = "camelCase")]
 pub struct Instance {
 	/// The ID of the instance to get more information about
-	pub instance_id: crate::model::id::Instance,
+	pub instance_id: crate::id::Instance,
 }
 
 #[cfg(feature = "http")]

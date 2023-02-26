@@ -1,8 +1,3 @@
 {
-	"rust-analyzer.cargo.features": [
-		"http",
-		"http_client",
-		"ws",
-		"ws_client"
-	]
+	"rust-analyzer.cargo.features": "all"
 }

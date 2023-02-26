@@ -9,11 +9,11 @@ use crate::model::{UserBase, WorldDisplayDetails};
 #[serde(rename_all = "camelCase")]
 pub struct InviteRequest {
 	/// The ID of the invite
-	pub id: crate::model::id::Invite,
-	/// The sender of the invite
+	pub id: crate::id::Invite,
+	/// The sender of the invite request
 	pub sender: crate::model::UserBase,
 	/// The receiver's ID
-	pub receiver_id: crate::model::id::User,
+	pub receiver_id: crate::id::User,
 }
 
 /// An invite from someone to join their instance
@@ -21,11 +21,17 @@ pub struct InviteRequest {
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Invite {
-	pub id: crate::model::id::Invite,
+	/// The ID of the invite
+	pub id: crate::id::Invite,
+	/// The user that this invite is from
 	pub user: UserBase,
+	/// The world that this invite is to
 	pub world: WorldDisplayDetails,
-	pub instance_id: crate::model::id::Instance,
-	pub receiver_id: crate::model::id::User,
+	/// The ID of the instance that this invite is to
+	pub instance_id: crate::id::Instance,
+	/// The receiving user's ID
+	pub receiver_id: crate::id::User,
+	/// The instance's name that this invite is to
 	pub instance_name: String,
 }
 
@@ -33,6 +39,7 @@ pub struct Invite {
 #[serde_with::serde_as]
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize)]
 #[serde(rename_all = "camelCase")]
+/// A list of invites
 pub struct Invites(
 	#[cfg_attr(not(feature = "debug"), serde_as(as = "serde_with::VecSkipError<_>"))]
 	Vec<Invite>,
@@ -42,6 +49,7 @@ pub struct Invites(
 #[serde_with::serde_as]
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize)]
 #[serde(rename_all = "camelCase")]
+/// A list of invite requests
 pub struct InviteRequests(
 	#[cfg_attr(not(feature = "debug"), serde_as(as = "serde_with::VecSkipError<_>"))]
 	Vec<InviteRequest>,

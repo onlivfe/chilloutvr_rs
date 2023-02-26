@@ -4,13 +4,14 @@ use chilloutvr::model::{FriendRequests, Friends};
 
 mod common;
 
-#[test]
+#[tokio::test]
 #[ignore]
-fn friend_requests() -> Result<(), chilloutvr::api_client::ApiError> {
+async fn friend_requests() -> Result<(), chilloutvr::api_client::ApiError> {
+	let api_client = common::api_client();
+
 	let query = chilloutvr::query::FriendRequests {};
-	let results: FriendRequests =
-		tokio_test::block_on(common::api_client().query(query))?;
-	// To run this test, you should have at least 1 pending friend request :/
+	let results: FriendRequests = api_client.query(query).await?;
+	// To run this test, you should have at least 1 friend request, oh no for you ~
 
 	dbg!(&results);
 
@@ -28,12 +29,14 @@ fn friend_requests() -> Result<(), chilloutvr::api_client::ApiError> {
 	Ok(())
 }
 
-#[test]
+#[tokio::test]
 #[ignore]
-fn friends() -> Result<(), chilloutvr::api_client::ApiError> {
+async fn friends() -> Result<(), chilloutvr::api_client::ApiError> {
+	let api_client = common::api_client();
+
 	let query = chilloutvr::query::FriendList {};
-	let results: Friends = tokio_test::block_on(common::api_client().query(query))?;
-	// To run this test, you should have at least 1 friend :/
+	let results: Friends = api_client.query(query).await?;
+	// To run this test, you should have at least 1 friend, oh no for you ~
 
 	dbg!(&results);
 
@@ -44,9 +47,9 @@ fn friends() -> Result<(), chilloutvr::api_client::ApiError> {
 		None => panic!("expected response to contain at least a single world"),
 	};
 
-	assert!(!first_friend.id.as_ref().is_empty());
-	assert!(!first_friend.name.is_empty());
-	assert!(!first_friend.image_url.is_empty());
+	assert!(!first_friend.base.id.as_ref().is_empty());
+	assert!(!first_friend.base.name.is_empty());
+	assert!(!first_friend.base.image_url.is_empty());
 
 	Ok(())
 }

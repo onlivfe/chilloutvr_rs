@@ -30,8 +30,7 @@ pub const API_V1_WS_URL: &str = "wss://api.abinteractive.net/1/users/ws";
 // The gateway endpoint... Website/old API probably?
 //pub const API_V1_GAME_DATA: &str = "https://gateway.abi.network/v1/IGameData";
 
-// TODO: Complete docs
-#[allow(missing_docs)]
+pub mod id;
 pub mod model;
 pub mod query;
 

@@ -12,7 +12,7 @@ use serde::Serialize;
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize)]
 pub struct WorldDetailsQuery {
 	/// The ID of the world to get more information about
-	pub world_id: crate::model::id::Asset,
+	pub world_id: crate::id::Asset,
 }
 
 #[cfg(feature = "http")]

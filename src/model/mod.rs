@@ -1,9 +1,7 @@
 //! Models of the API responses to queries.
 
-use serde::{Deserialize, Serialize};
-use serde_with::{serde_as, NoneAsEmptyString};
-
-pub mod id;
+use serde::{de::Error, Deserialize, Serialize};
+use serde_with::serde_as;
 
 mod invites;
 pub use invites::*;
@@ -33,53 +31,92 @@ pub use searches::*;
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ResponseDataWrapper<T> {
-	/// Non-empty string, otherwise deserialized to none
+	/// Deserialized to empty string if missing or null
 	#[serde(default)]
-	#[serde_as(as = "NoneAsEmptyString")]
-	pub message: Option<String>,
+	#[serde_as(deserialize_as = "serde_with::DefaultOnNull")]
+	pub message: String,
 	/// The actual data
 	pub data: T,
 }
 
 #[cfg(feature = "ws")]
 #[derive(
-	Debug,
-	Clone,
-	PartialEq,
-	Eq,
-	Deserialize,
-	strum::Display,
-	strum::AsRefStr,
-	strum::EnumVariantNames,
+	Debug, Clone, PartialEq, Eq, strum::Display, strum::AsRefStr, strum::EnumVariantNames,
 )]
 #[non_exhaustive]
-#[serde(tag = "responseType", content = "data")]
+/// The actual response data of an incoming WebSocket message
 pub enum WsResponseData {
-	#[serde(rename = "0")]
+	/// Some sorta alert/notification most likely?
 	MenuPopup(serde_json::Value),
-	#[serde(rename = "1")]
+	/// Some sorta alert/notification most likely?
 	HudMessage(serde_json::Value),
-	#[serde(rename = "2")]
+	/// Some sorta alert/notification most likely?
 	PushNotification(serde_json::Value),
-	#[serde(rename = "10")]
+	/// Update of the status of online friends
 	OnlineFriends(Friends),
-	#[serde(rename = "15")]
+	/// Update of current invites
 	Invites(Invites),
-	#[serde(rename = "20")]
+	/// Update of current invite requests
 	RequestInvites(InviteRequest),
-	#[serde(rename = "25")]
+	/// Update of current friend requests
 	FriendRequest(FriendRequests),
+}
+
+// Auto derives don't seem to support this, see https://github.com/serde-rs/serde/issues/745
+impl<'de> serde::Deserialize<'de> for WsResponseData {
+	fn deserialize<D: serde::Deserializer<'de>>(d: D) -> Result<Self, D::Error> {
+		use serde_json::Value;
+		let mut value = Value::deserialize(d)?;
+		let resp_type = value
+			.get("responseType")
+			.ok_or_else(|| D::Error::missing_field("responseType"))?
+			.as_u64()
+			.ok_or_else(|| D::Error::custom("responseType was not an unsigned int"))?;
+		let data =
+			value.get_mut("data").ok_or_else(|| D::Error::missing_field("data"))?.take();
+
+		Ok(match resp_type {
+			0 => Self::MenuPopup(data),
+			1 => Self::HudMessage(data),
+			2 => Self::PushNotification(data),
+			10 => Self::OnlineFriends(serde_json::from_value(data).map_err(|e| {
+				D::Error::custom(format!(
+					"deserializing OnlineFriends data failed: {e:?}"
+				))
+			})?),
+			15 => Self::Invites(serde_json::from_value(data).map_err(|e| {
+				D::Error::custom(format!("deserializing Invites data failed: {e:?}"))
+			})?),
+			20 => Self::RequestInvites(serde_json::from_value(data).map_err(|e| {
+				D::Error::custom(format!(
+					"deserializing RequestInvites data failed: {e:?}"
+				))
+			})?),
+			25 => Self::FriendRequest(serde_json::from_value(data).map_err(|e| {
+				D::Error::custom(format!(
+					"deserializing FriendRequest data failed: {e:?}"
+				))
+			})?),
+			type_ => {
+				return Err(D::Error::invalid_value(
+					serde::de::Unexpected::Unsigned(type_),
+					&"a supported WS message responseType",
+				));
+			}
+		})
+	}
 }
 
 #[cfg(any(feature = "http"))]
 #[serde_as]
 #[derive(Debug, Clone, PartialEq, Eq, Deserialize)]
 #[serde(rename_all = "camelCase")]
+/// A WebSocket response
 pub struct WsResponse {
-	/// Non-empty string, otherwise deserialized to none
+	/// Deserialized to empty string if missing or null
 	#[serde(default)]
-	#[serde_as(as = "NoneAsEmptyString")]
-	pub message: Option<String>,
+	#[serde_as(deserialize_as = "serde_with::DefaultOnNull")]
+	pub message: String,
 	/// The actual data
 	#[serde(flatten)]
 	pub data: WsResponseData,

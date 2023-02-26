@@ -40,7 +40,7 @@ impl Queryable<SavedLoginCredentials, ResponseDataWrapper<crate::model::FriendRe
 #[serde(rename_all = "camelCase")]
 pub struct FriendRequest {
 	/// The ID of the user to request to be friends with
-	pub id: crate::model::id::Invite,
+	pub id: crate::id::Invite,
 }
 
 #[cfg(feature = "ws")]
@@ -56,7 +56,7 @@ impl Requestable for FriendRequest {
 #[serde(rename_all = "camelCase")]
 pub struct AcceptFriendRequest {
 	/// The ID of the user that this response is to
-	pub id: crate::model::id::Invite,
+	pub id: crate::id::Invite,
 }
 
 #[cfg(feature = "ws")]
@@ -72,7 +72,7 @@ impl Requestable for AcceptFriendRequest {
 #[serde(rename_all = "camelCase")]
 pub struct DeclineFriendRequest {
 	/// The ID of the user that this response is to
-	pub id: crate::model::id::Invite,
+	pub id: crate::id::Invite,
 }
 
 #[cfg(feature = "ws")]
@@ -88,7 +88,7 @@ impl Requestable for DeclineFriendRequest {
 #[serde(rename_all = "camelCase")]
 pub struct UnFriend {
 	/// The ID of the user to remove from the friends list
-	pub id: crate::model::id::Invite,
+	pub id: crate::id::Invite,
 }
 
 #[cfg(feature = "ws")]

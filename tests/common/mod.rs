@@ -7,6 +7,8 @@ use chilloutvr::{
 	query::SavedLoginCredentials,
 };
 
+use once_cell::sync::Lazy;
+
 const USER_AGENT: &str = concat!(
 	env!("CARGO_PKG_NAME"),
 	env!("CARGO_PKG_VERSION"),
@@ -15,7 +17,7 @@ const USER_AGENT: &str = concat!(
 	") - tests",
 );
 
-pub fn api_client() -> AuthenticatedCVR {
+pub static USER_AUTH: Lazy<UserAuth> = Lazy::new(|| {
 	let user_auth: UserAuth = serde_json::from_slice::<ResponseDataWrapper<UserAuth>>(
 		&std::fs::read("user-auth.json")
 			.expect("must have a prepared `user-auth.json` file for live API testing"),
@@ -26,6 +28,13 @@ pub fn api_client() -> AuthenticatedCVR {
 	assert!(!user_auth.username.is_empty());
 	assert!(user_auth.access_key.len() > 20);
 
-	AuthenticatedCVR::new(USER_AGENT.to_owned(), SavedLoginCredentials::from(user_auth))
-		.unwrap()
+	user_auth
+});
+
+pub fn api_client() -> AuthenticatedCVR {
+	AuthenticatedCVR::new(
+		USER_AGENT.to_owned(),
+		SavedLoginCredentials::from(&USER_AUTH.clone().into()),
+	)
+	.unwrap()
 }

@@ -1,4 +1,4 @@
-20
+30
 ABI
 WS
 CVR
@@ -18,3 +18,10 @@ WebSockets
 WebSocket
 struct
 async
+uploader
+uploader's
+downloader
+downloader's
+MD5
+crc32
+base64
