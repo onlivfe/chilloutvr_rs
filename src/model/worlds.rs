@@ -58,7 +58,10 @@ pub struct WorldInstance {
 /// Details of a world's current status
 pub struct WorldDetailsResponse {
 	#[serde(default)]
-	#[cfg_attr(not(feature = "debug"), serde_as(as = "serde_with::VecSkipError<_>"))]
+	#[cfg_attr(
+		not(feature = "debug"),
+		serde_as(as = "serde_with::VecSkipError<_>")
+	)]
 	/// Details of instances that are using the world
 	pub instances: Vec<WorldInstance>,
 	#[serde(flatten)]

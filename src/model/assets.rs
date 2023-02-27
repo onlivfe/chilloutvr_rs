@@ -1,6 +1,7 @@
-use crate::model::UserBase;
 use serde::{Deserialize, Serialize};
 use time::OffsetDateTime;
+
+use crate::model::UserBase;
 
 #[cfg(feature = "http")]
 #[derive(
@@ -174,7 +175,10 @@ pub struct AssetBaseWithTags {
 	/// Base details of the asset
 	pub base: AssetBase,
 	#[serde(default)]
-	#[cfg_attr(not(feature = "debug"), serde_as(as = "serde_with::VecSkipError<_>"))]
+	#[cfg_attr(
+		not(feature = "debug"),
+		serde_as(as = "serde_with::VecSkipError<_>")
+	)]
 	/// The tags of the asset
 	pub tags: Vec<AssetTag>,
 }
@@ -189,7 +193,10 @@ pub struct AssetBaseWithCategories {
 	/// Base details of the asset
 	pub base: AssetBase,
 	#[serde(default)]
-	#[cfg_attr(not(feature = "debug"), serde_as(as = "serde_with::VecSkipError<_>"))]
+	#[cfg_attr(
+		not(feature = "debug"),
+		serde_as(as = "serde_with::VecSkipError<_>")
+	)]
 	/// The categories of the asset
 	pub categories: Vec<String>,
 }

@@ -6,7 +6,6 @@ use chilloutvr::{
 	model::{ResponseDataWrapper, UserAuth},
 	query::SavedLoginCredentials,
 };
-
 use once_cell::sync::Lazy;
 
 const USER_AGENT: &str = concat!(
@@ -18,12 +17,14 @@ const USER_AGENT: &str = concat!(
 );
 
 pub static USER_AUTH: Lazy<UserAuth> = Lazy::new(|| {
-	let user_auth: UserAuth = serde_json::from_slice::<ResponseDataWrapper<UserAuth>>(
-		&std::fs::read("user-auth.json")
-			.expect("must have a prepared `user-auth.json` file for live API testing"),
-	)
-	.expect("`user-auth.json` file to parse into user auth")
-	.data;
+	let user_auth: UserAuth =
+		serde_json::from_slice::<ResponseDataWrapper<UserAuth>>(
+			&std::fs::read("user-auth.json").expect(
+				"must have a prepared `user-auth.json` file for live API testing",
+			),
+		)
+		.expect("`user-auth.json` file to parse into user auth")
+		.data;
 
 	assert!(!user_auth.username.is_empty());
 	assert!(user_auth.access_key.len() > 20);

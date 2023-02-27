@@ -23,6 +23,9 @@
 //! afterwards.
 
 #[cfg(feature = "http_client")]
+use std::num::NonZeroU32;
+
+#[cfg(feature = "http_client")]
 use governor::{
 	clock::DefaultClock,
 	middleware::NoOpMiddleware,
@@ -35,8 +38,6 @@ use racal::{Queryable, RequestMethod};
 #[cfg(feature = "http_client")]
 use reqwest::{header::HeaderMap, Client};
 use serde::{de::DeserializeOwned, ser::Serialize};
-#[cfg(feature = "http_client")]
-use std::num::NonZeroU32;
 
 use crate::query::{CvrApiUnwrapping, NoAuthentication, SavedLoginCredentials};
 
@@ -57,16 +58,12 @@ pub enum ApiError {
 }
 
 impl From<serde_json::Error> for ApiError {
-	fn from(err: serde_json::Error) -> Self {
-		Self::Serde(err)
-	}
+	fn from(err: serde_json::Error) -> Self { Self::Serde(err) }
 }
 
 #[cfg(feature = "http_client")]
 impl From<reqwest::Error> for ApiError {
-	fn from(err: reqwest::Error) -> Self {
-		Self::Reqwest(err)
-	}
+	fn from(err: reqwest::Error) -> Self { Self::Reqwest(err) }
 }
 
 #[cfg(feature = "ws_client")]
@@ -105,9 +102,7 @@ pub struct AuthenticatedCVR {
 
 #[cfg(feature = "http_client")]
 async fn base_query<R, FromState: Send, T>(
-	http: &Client,
-	api_state: FromState,
-	rate_limiter: &NormalRateLimiter,
+	http: &Client, api_state: FromState, rate_limiter: &NormalRateLimiter,
 	queryable: T,
 ) -> Result<R, ApiError>
 where
@@ -152,8 +147,7 @@ impl AuthenticatedCVR {
 	/// Creates an API client
 	#[cfg(feature = "http_client")]
 	fn http_client(
-		user_agent: &str,
-		auth: &SavedLoginCredentials,
+		user_agent: &str, auth: &SavedLoginCredentials,
 	) -> Result<Client, ApiError> {
 		use serde::ser::Error;
 
@@ -196,8 +190,7 @@ impl AuthenticatedCVR {
 	///
 	/// If deserializing user agent into a header fails
 	pub fn new(
-		user_agent: String,
-		auth: impl Into<SavedLoginCredentials> + Send,
+		user_agent: String, auth: impl Into<SavedLoginCredentials> + Send,
 	) -> Result<Self, ApiError> {
 		let auth = auth.into();
 		Ok(Self {
@@ -224,8 +217,7 @@ impl AuthenticatedCVR {
 	/// If something with the request failed.
 	#[cfg(feature = "http_client")]
 	pub async fn query<'a, ReturnType, WrappedType, FromState, T>(
-		&'a self,
-		queryable: T,
+		&'a self, queryable: T,
 	) -> Result<ReturnType, ApiError>
 	where
 		WrappedType: CvrApiUnwrapping<ReturnType> + DeserializeOwned,
@@ -233,9 +225,11 @@ impl AuthenticatedCVR {
 		T: Queryable<FromState, WrappedType> + Send + Sync,
 	{
 		let state = FromState::from(&self.auth);
-		Ok(base_query(&self.http, state, &self.http_rate_limiter, queryable)
-			.await?
-			.unwrap_data())
+		Ok(
+			base_query(&self.http, state, &self.http_rate_limiter, queryable)
+				.await?
+				.unwrap_data(),
+		)
 	}
 
 	/// Sends a query to the CVR API
@@ -245,8 +239,7 @@ impl AuthenticatedCVR {
 	/// If something with the request failed.
 	#[cfg(feature = "http_client")]
 	pub async fn query_without_unwrapping<'a, R, FromState, T>(
-		&'a self,
-		queryable: T,
+		&'a self, queryable: T,
 	) -> Result<R, ApiError>
 	where
 		R: DeserializeOwned,
@@ -275,7 +268,8 @@ impl AuthenticatedCVR {
 
 		#[cfg(feature = "http_client")]
 		self.http_rate_limiter.until_ready().await;
-		let client = ws::Client::new(self.user_agent.clone(), self.auth.clone()).await?;
+		let client =
+			ws::Client::new(self.user_agent.clone(), self.auth.clone()).await?;
 		let mut lock = self.ws.write().await;
 		*lock = Some(client);
 
@@ -311,8 +305,7 @@ impl AuthenticatedCVR {
 	/// or if the WS connection wasn't already open and creating it failed.
 	#[cfg(feature = "ws_client")]
 	pub async fn send(
-		&self,
-		requestable: impl crate::query::Requestable + Serialize + Send,
+		&self, requestable: impl crate::query::Requestable + Serialize + Send,
 	) -> Result<(), ApiError> {
 		{
 			let lock = self.ws.read().await;
@@ -325,7 +318,8 @@ impl AuthenticatedCVR {
 
 		#[cfg(feature = "http_client")]
 		self.http_rate_limiter.until_ready().await;
-		let client = ws::Client::new(self.user_agent.clone(), self.auth.clone()).await?;
+		let client =
+			ws::Client::new(self.user_agent.clone(), self.auth.clone()).await?;
 		let mut lock = self.ws.write().await;
 		*lock = Some(client);
 		let lock = lock.downgrade();
@@ -355,14 +349,17 @@ impl AuthenticatedCVR {
 
 		#[cfg(feature = "http_client")]
 		self.http_rate_limiter.until_ready().await;
-		let client = ws::Client::new(self.user_agent.clone(), self.auth.clone()).await?;
+		let client =
+			ws::Client::new(self.user_agent.clone(), self.auth.clone()).await?;
 		let mut lock = self.ws.write().await;
 		*lock = Some(client);
 		let lock = lock.downgrade();
-		Ok((*lock)
-			.as_ref()
-			.expect("client should exist as lock was never dropped")
-			.listen())
+		Ok(
+			(*lock)
+				.as_ref()
+				.expect("client should exist as lock was never dropped")
+				.listen(),
+		)
 	}
 }
 
@@ -379,8 +376,7 @@ impl UnauthenticatedCVR {
 	///
 	/// If deserializing user agent or authentication fails.
 	pub fn upgrade(
-		self,
-		auth: impl Into<SavedLoginCredentials> + Send,
+		self, auth: impl Into<SavedLoginCredentials> + Send,
 	) -> Result<AuthenticatedCVR, ApiError> {
 		let auth = auth.into();
 		Ok(AuthenticatedCVR {
@@ -422,8 +418,7 @@ impl UnauthenticatedCVR {
 	/// If something with the request failed.
 	#[cfg(feature = "http_client")]
 	pub async fn query<'a, ReturnType, WrappedType, FromState, T>(
-		&self,
-		queryable: T,
+		&self, queryable: T,
 	) -> Result<ReturnType, ApiError>
 	where
 		WrappedType: CvrApiUnwrapping<ReturnType> + DeserializeOwned,
@@ -431,9 +426,11 @@ impl UnauthenticatedCVR {
 		T: Queryable<FromState, WrappedType> + Send + Sync,
 	{
 		let state = FromState::from(&NoAuthentication {});
-		Ok(base_query(&self.http, state, &self.http_rate_limiter, queryable)
-			.await?
-			.unwrap_data())
+		Ok(
+			base_query(&self.http, state, &self.http_rate_limiter, queryable)
+				.await?
+				.unwrap_data(),
+		)
 	}
 
 	/// Sends a query to the CVR API
@@ -443,8 +440,7 @@ impl UnauthenticatedCVR {
 	/// If something with the request failed.
 	#[cfg(feature = "http_client")]
 	pub async fn query_without_unwrapping<'a, R, FromState, T>(
-		&'a self,
-		queryable: T,
+		&'a self, queryable: T,
 	) -> Result<R, ApiError>
 	where
 		R: DeserializeOwned,

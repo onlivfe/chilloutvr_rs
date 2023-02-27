@@ -1,11 +1,11 @@
 #[cfg(feature = "http")]
+use racal::Queryable;
+
+#[cfg(feature = "http")]
 use crate::{
 	model::{ResponseDataWrapper, SearchResults},
 	query::SavedLoginCredentials,
 };
-
-#[cfg(feature = "http")]
-use racal::Queryable;
 
 /// Search for things using a search term
 #[cfg(feature = "http")]
@@ -16,7 +16,9 @@ pub struct Search {
 }
 
 #[cfg(feature = "http")]
-impl Queryable<SavedLoginCredentials, ResponseDataWrapper<SearchResults>> for Search {
+impl Queryable<SavedLoginCredentials, ResponseDataWrapper<SearchResults>>
+	for Search
+{
 	fn url(&self, _: &SavedLoginCredentials) -> String {
 		format!("{}/search/{}", crate::API_V1_HTTP_URL, &self.term)
 	}

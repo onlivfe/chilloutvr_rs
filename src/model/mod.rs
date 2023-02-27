@@ -41,7 +41,13 @@ pub struct ResponseDataWrapper<T> {
 
 #[cfg(feature = "ws")]
 #[derive(
-	Debug, Clone, PartialEq, Eq, strum::Display, strum::AsRefStr, strum::EnumVariantNames,
+	Debug,
+	Clone,
+	PartialEq,
+	Eq,
+	strum::Display,
+	strum::AsRefStr,
+	strum::EnumVariantNames,
 )]
 #[non_exhaustive]
 /// The actual response data of an incoming WebSocket message
@@ -71,9 +77,13 @@ impl<'de> serde::Deserialize<'de> for WsResponseData {
 			.get("responseType")
 			.ok_or_else(|| D::Error::missing_field("responseType"))?
 			.as_u64()
-			.ok_or_else(|| D::Error::custom("responseType was not an unsigned int"))?;
-		let data =
-			value.get_mut("data").ok_or_else(|| D::Error::missing_field("data"))?.take();
+			.ok_or_else(|| {
+				D::Error::custom("responseType was not an unsigned int")
+			})?;
+		let data = value
+			.get_mut("data")
+			.ok_or_else(|| D::Error::missing_field("data"))?
+			.take();
 
 		Ok(match resp_type {
 			0 => Self::MenuPopup(data),
@@ -87,11 +97,13 @@ impl<'de> serde::Deserialize<'de> for WsResponseData {
 			15 => Self::Invites(serde_json::from_value(data).map_err(|e| {
 				D::Error::custom(format!("deserializing Invites data failed: {e:?}"))
 			})?),
-			20 => Self::RequestInvites(serde_json::from_value(data).map_err(|e| {
-				D::Error::custom(format!(
-					"deserializing RequestInvites data failed: {e:?}"
-				))
-			})?),
+			20 => {
+				Self::RequestInvites(serde_json::from_value(data).map_err(|e| {
+					D::Error::custom(format!(
+						"deserializing RequestInvites data failed: {e:?}"
+					))
+				})?)
+			}
 			25 => Self::FriendRequest(serde_json::from_value(data).map_err(|e| {
 				D::Error::custom(format!(
 					"deserializing FriendRequest data failed: {e:?}"

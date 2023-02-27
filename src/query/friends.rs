@@ -1,3 +1,6 @@
+#[cfg(feature = "http")]
+use racal::Queryable;
+
 #[cfg(feature = "ws")]
 use super::{RequestType, Requestable};
 #[cfg(feature = "http")]
@@ -5,8 +8,6 @@ use crate::{
 	model::{Friends, ResponseDataWrapper},
 	query::SavedLoginCredentials,
 };
-#[cfg(feature = "http")]
-use racal::Queryable;
 
 /// Gets your friends list
 #[cfg(feature = "http")]
@@ -14,7 +15,9 @@ use racal::Queryable;
 pub struct FriendList();
 
 #[cfg(feature = "http")]
-impl Queryable<SavedLoginCredentials, ResponseDataWrapper<Friends>> for FriendList {
+impl Queryable<SavedLoginCredentials, ResponseDataWrapper<Friends>>
+	for FriendList
+{
 	fn url(&self, _: &SavedLoginCredentials) -> String {
 		format!("{}/friends", crate::API_V1_HTTP_URL)
 	}
@@ -26,8 +29,11 @@ impl Queryable<SavedLoginCredentials, ResponseDataWrapper<Friends>> for FriendLi
 pub struct FriendRequests();
 
 #[cfg(feature = "http")]
-impl Queryable<SavedLoginCredentials, ResponseDataWrapper<crate::model::FriendRequests>>
-	for FriendRequests
+impl
+	Queryable<
+		SavedLoginCredentials,
+		ResponseDataWrapper<crate::model::FriendRequests>,
+	> for FriendRequests
 {
 	fn url(&self, _: &SavedLoginCredentials) -> String {
 		format!("{}/friends/requests", crate::API_V1_HTTP_URL)
@@ -45,9 +51,7 @@ pub struct FriendRequest {
 
 #[cfg(feature = "ws")]
 impl Requestable for FriendRequest {
-	fn request_type(&self) -> RequestType {
-		RequestType::FriendRequestSend
-	}
+	fn request_type(&self) -> RequestType { RequestType::FriendRequestSend }
 }
 
 /// Accepts another user's request to be friends
@@ -61,9 +65,7 @@ pub struct AcceptFriendRequest {
 
 #[cfg(feature = "ws")]
 impl Requestable for AcceptFriendRequest {
-	fn request_type(&self) -> RequestType {
-		RequestType::FriendRequestAccept
-	}
+	fn request_type(&self) -> RequestType { RequestType::FriendRequestAccept }
 }
 
 /// Decline another user's request to be friends
@@ -77,9 +79,7 @@ pub struct DeclineFriendRequest {
 
 #[cfg(feature = "ws")]
 impl Requestable for DeclineFriendRequest {
-	fn request_type(&self) -> RequestType {
-		RequestType::FriendRequestDecline
-	}
+	fn request_type(&self) -> RequestType { RequestType::FriendRequestDecline }
 }
 
 /// Removes an user from the current user's friends list
@@ -93,7 +93,5 @@ pub struct UnFriend {
 
 #[cfg(feature = "ws")]
 impl Requestable for UnFriend {
-	fn request_type(&self) -> RequestType {
-		RequestType::UnFriend
-	}
+	fn request_type(&self) -> RequestType { RequestType::UnFriend }
 }

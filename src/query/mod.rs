@@ -25,15 +25,11 @@ pub use invites::*;
 pub struct NoAuthentication {}
 
 impl From<&Self> for NoAuthentication {
-	fn from(_: &Self) -> Self {
-		Self {}
-	}
+	fn from(_: &Self) -> Self { Self {} }
 }
 
 impl From<&SavedLoginCredentials> for NoAuthentication {
-	fn from(_: &SavedLoginCredentials) -> Self {
-		Self {}
-	}
+	fn from(_: &SavedLoginCredentials) -> Self { Self {} }
 }
 
 /// Supports the CVR custom API "unwrapping" the data
@@ -44,15 +40,13 @@ pub trait CvrApiUnwrapping<UnwrappedType>: DeserializeOwned {
 }
 #[cfg(feature = "http")]
 impl<T: DeserializeOwned> CvrApiUnwrapping<T> for T {
-	fn unwrap_data(self) -> T {
-		self
-	}
+	fn unwrap_data(self) -> T { self }
 }
 #[cfg(feature = "http")]
-impl<T: DeserializeOwned> CvrApiUnwrapping<T> for crate::model::ResponseDataWrapper<T> {
-	fn unwrap_data(self) -> T {
-		self.data
-	}
+impl<T: DeserializeOwned> CvrApiUnwrapping<T>
+	for crate::model::ResponseDataWrapper<T>
+{
+	fn unwrap_data(self) -> T { self.data }
 }
 
 /// A WS message going from the client to the CVR server
@@ -119,7 +113,5 @@ pub struct Online;
 
 #[cfg(feature = "ws")]
 impl Requestable for Online {
-	fn request_type(&self) -> RequestType {
-		RequestType::SelfOnline
-	}
+	fn request_type(&self) -> RequestType { RequestType::SelfOnline }
 }

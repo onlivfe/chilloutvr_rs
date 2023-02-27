@@ -11,7 +11,8 @@ async fn friend_requests() -> Result<(), chilloutvr::api_client::ApiError> {
 
 	let query = chilloutvr::query::FriendRequests {};
 	let results: FriendRequests = api_client.query(query).await?;
-	// To run this test, you should have at least 1 friend request, oh no for you ~
+	// To run this test, you should have at least 1 friend request, oh no for you
+	// ~
 
 	dbg!(&results);
 

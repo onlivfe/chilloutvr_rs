@@ -1,3 +1,7 @@
+#[cfg(feature = "http")]
+use racal::Queryable;
+use serde::Serialize;
+
 #[cfg(feature = "ws")]
 use super::{RequestType, Requestable};
 #[cfg(feature = "http")]
@@ -5,9 +9,6 @@ use crate::{
 	model::{ResponseDataWrapper, UserAuth},
 	query::NoAuthentication,
 };
-#[cfg(feature = "http")]
-use racal::Queryable;
-use serde::Serialize;
 
 /// Gets details about a specific user
 #[cfg(feature = "http")]
@@ -77,7 +78,10 @@ impl From<UserAuth> for SavedLoginCredentials {
 
 impl From<&Self> for SavedLoginCredentials {
 	fn from(value: &Self) -> Self {
-		Self { access_key: value.access_key.clone(), username: value.username.clone() }
+		Self {
+			access_key: value.access_key.clone(),
+			username: value.username.clone(),
+		}
 	}
 }
 
@@ -94,7 +98,9 @@ pub enum AuthType {
 }
 
 #[cfg(feature = "http")]
-impl Queryable<NoAuthentication, ResponseDataWrapper<UserAuth>> for LoginCredentials {
+impl Queryable<NoAuthentication, ResponseDataWrapper<UserAuth>>
+	for LoginCredentials
+{
 	fn url(&self, _: &NoAuthentication) -> String {
 		format!("{}/users/auth", crate::API_V1_HTTP_URL)
 	}
@@ -115,9 +121,7 @@ pub struct BlockUser {
 
 #[cfg(feature = "ws")]
 impl Requestable for BlockUser {
-	fn request_type(&self) -> RequestType {
-		RequestType::BlockUser
-	}
+	fn request_type(&self) -> RequestType { RequestType::BlockUser }
 }
 
 /// Removes an user to the blocked users list
@@ -131,7 +135,5 @@ pub struct UnBlockUser {
 
 #[cfg(feature = "ws")]
 impl Requestable for UnBlockUser {
-	fn request_type(&self) -> RequestType {
-		RequestType::UnBlockUser
-	}
+	fn request_type(&self) -> RequestType { RequestType::UnBlockUser }
 }

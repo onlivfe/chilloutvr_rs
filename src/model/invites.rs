@@ -41,7 +41,10 @@ pub struct Invite {
 #[serde(rename_all = "camelCase")]
 /// A list of invites
 pub struct Invites(
-	#[cfg_attr(not(feature = "debug"), serde_as(as = "serde_with::VecSkipError<_>"))]
+	#[cfg_attr(
+		not(feature = "debug"),
+		serde_as(as = "serde_with::VecSkipError<_>")
+	)]
 	pub Vec<Invite>,
 );
 
@@ -51,6 +54,9 @@ pub struct Invites(
 #[serde(rename_all = "camelCase")]
 /// A list of invite requests
 pub struct InviteRequests(
-	#[cfg_attr(not(feature = "debug"), serde_as(as = "serde_with::VecSkipError<_>"))]
+	#[cfg_attr(
+		not(feature = "debug"),
+		serde_as(as = "serde_with::VecSkipError<_>")
+	)]
 	pub Vec<InviteRequest>,
 );

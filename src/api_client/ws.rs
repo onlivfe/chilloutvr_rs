@@ -1,5 +1,3 @@
-use super::ApiError;
-use crate::{model::WsResponse, query::SavedLoginCredentials};
 use futures_util::SinkExt;
 use serde::Serialize;
 use tokio::task::JoinHandle;
@@ -8,6 +6,9 @@ use tokio_stream::{
 	StreamExt,
 };
 use tokio_tungstenite::tungstenite::Message;
+
+use super::ApiError;
+use crate::{model::WsResponse, query::SavedLoginCredentials};
 
 type WsListenItem = Result<WsResponse, ApiError>;
 pub type ReceiverContainer =
@@ -26,17 +27,15 @@ enum WsMultiplexMessage {
 
 impl Client {
 	pub async fn new(
-		user_agent: String,
-		auth: SavedLoginCredentials,
+		user_agent: String, auth: SavedLoginCredentials,
 	) -> Result<Self, ApiError> {
 		use base64::Engine as _;
-
 		use serde::ser::Error;
 
 		// WebSocket protocol is dumb, just why.... this is useless
 		// And yes it needs to be exactly 16 bytes after decoding
-		let rand_base_64 =
-			base64::engine::general_purpose::URL_SAFE.encode(rand::random::<[u8; 16]>());
+		let rand_base_64 = base64::engine::general_purpose::URL_SAFE
+			.encode(rand::random::<[u8; 16]>());
 
 		// This is pain, need to follow
 		// https://github.com/snapview/tungstenite-rs/issues/327
@@ -74,7 +73,9 @@ impl Client {
 				.map(|rec| {
 					WsMultiplexMessage::Receive(rec.map_err(ApiError::Tungstenite))
 				})
-				.merge(ReceiverStream::from(send_receiver).map(WsMultiplexMessage::Send));
+				.merge(
+					ReceiverStream::from(send_receiver).map(WsMultiplexMessage::Send),
+				);
 
 			while let Some(msg) = bidirectional_stream.next().await {
 				match msg {
@@ -107,9 +108,7 @@ impl Client {
 		Ok(ws_client)
 	}
 
-	pub fn is_ok(&self) -> bool {
-		!self.send.is_closed()
-	}
+	pub fn is_ok(&self) -> bool { !self.send.is_closed() }
 
 	/// Sends a WS message to the CVR API.
 	///
@@ -117,8 +116,7 @@ impl Client {
 	///
 	/// If something with the request failed.
 	pub async fn send(
-		&self,
-		requestable: impl crate::query::Requestable + Serialize + Send,
+		&self, requestable: impl crate::query::Requestable + Serialize + Send,
 	) -> Result<(), ApiError> {
 		let data = crate::query::RequestWrapper {
 			request_type: requestable.request_type(),
@@ -128,15 +126,15 @@ impl Client {
 		let data = tokio_tungstenite::tungstenite::Message::binary(data);
 
 		self.send.send(data).await.map_err(|_| {
-			ApiError::Tungstenite(tokio_tungstenite::tungstenite::Error::AlreadyClosed)
+			ApiError::Tungstenite(
+				tokio_tungstenite::tungstenite::Error::AlreadyClosed,
+			)
 		})?;
 
 		Ok(())
 	}
 
-	pub fn listen(&self) -> ReceiverContainer {
-		self.receive.clone()
-	}
+	pub fn listen(&self) -> ReceiverContainer { self.receive.clone() }
 
 	/// Turns a WS receiving channel to an async streams
 	fn ws_map_message(msg: Message) -> WsListenItem {
@@ -145,7 +143,5 @@ impl Client {
 }
 
 impl Drop for Client {
-	fn drop(&mut self) {
-		self.handle.abort();
-	}
+	fn drop(&mut self) { self.handle.abort(); }
 }

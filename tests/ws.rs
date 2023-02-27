@@ -20,9 +20,9 @@ async fn open_ws() -> Result<(), chilloutvr::api_client::ApiError> {
 
 	let listener = match api_client.listen().await {
 		Ok(listener) => listener,
-		Err(ApiError::Tungstenite(tokio_tungstenite::tungstenite::Error::Http(
-			mut resp,
-		))) => {
+		Err(ApiError::Tungstenite(
+			tokio_tungstenite::tungstenite::Error::Http(mut resp),
+		)) => {
 			// Turn the body into human readable from the bytes
 			let mut body = None;
 			std::mem::swap(resp.body_mut(), &mut body);

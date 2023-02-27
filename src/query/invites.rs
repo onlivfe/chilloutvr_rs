@@ -12,9 +12,7 @@ pub struct Invite {
 
 #[cfg(feature = "ws")]
 impl Requestable for Invite {
-	fn request_type(&self) -> RequestType {
-		RequestType::InviteSend
-	}
+	fn request_type(&self) -> RequestType { RequestType::InviteSend }
 }
 
 /// Requests an invite from an user
@@ -28,9 +26,7 @@ pub struct InviteRequest {
 
 #[cfg(feature = "ws")]
 impl Requestable for InviteRequest {
-	fn request_type(&self) -> RequestType {
-		RequestType::RequestInvite
-	}
+	fn request_type(&self) -> RequestType { RequestType::RequestInvite }
 }
 
 /// Accepts an invite request,
@@ -45,9 +41,7 @@ pub struct AcceptInviteRequest {
 
 #[cfg(feature = "ws")]
 impl Requestable for AcceptInviteRequest {
-	fn request_type(&self) -> RequestType {
-		RequestType::RequestInviteAccept
-	}
+	fn request_type(&self) -> RequestType { RequestType::RequestInviteAccept }
 }
 
 /// Declines an invite request
@@ -61,9 +55,7 @@ pub struct DeclineInviteRequest {
 
 #[cfg(feature = "ws")]
 impl Requestable for DeclineInviteRequest {
-	fn request_type(&self) -> RequestType {
-		RequestType::RequestInviteDecline
-	}
+	fn request_type(&self) -> RequestType { RequestType::RequestInviteDecline }
 }
 
 /// Marks an invite as expired
@@ -77,7 +69,5 @@ pub struct ExpireInvite {
 
 #[cfg(feature = "ws")]
 impl Requestable for ExpireInvite {
-	fn request_type(&self) -> RequestType {
-		RequestType::InviteExpire
-	}
+	fn request_type(&self) -> RequestType { RequestType::InviteExpire }
 }

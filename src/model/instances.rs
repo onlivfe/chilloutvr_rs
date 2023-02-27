@@ -1,6 +1,7 @@
+use serde::{Deserialize, Serialize};
+
 #[cfg(feature = "http")]
 use crate::model::{AssetBase, AssetBaseWithTags, UserBase, UserDetails};
-use serde::{Deserialize, Serialize};
 
 #[cfg(feature = "http")]
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize, Serialize)]
@@ -61,7 +62,10 @@ pub struct InstanceDetails {
 	/// How many players are currently in the instance
 	pub current_player_count: u32,
 	#[serde(default)]
-	#[cfg_attr(not(feature = "debug"), serde_as(as = "serde_with::VecSkipError<_>"))]
+	#[cfg_attr(
+		not(feature = "debug"),
+		serde_as(as = "serde_with::VecSkipError<_>")
+	)]
 	/// A list of the users currently in the instance
 	pub members: Vec<UserBase>,
 }

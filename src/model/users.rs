@@ -1,9 +1,9 @@
-#[cfg(feature = "http")]
-use crate::model::{AssetBase, FeaturedItem};
 use serde::{Deserialize, Serialize};
 
 #[cfg(feature = "http")]
 use super::AssetBaseWithCategories;
+#[cfg(feature = "http")]
+use crate::model::{AssetBase, FeaturedItem};
 
 #[cfg(any(feature = "http", feature = "ws"))]
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize, Serialize)]
@@ -71,7 +71,10 @@ impl std::fmt::Debug for UserAuth {
 			.field("user_id", &self.user_id)
 			.field("current_avatar", &self.current_avatar)
 			.field("current_home_world", &self.current_home_world)
-			.field("video_url_resolver_executable", &self.video_url_resolver_executable)
+			.field(
+				"video_url_resolver_executable",
+				&self.video_url_resolver_executable,
+			)
 			.field("video_url_resolver_hashes", &self.video_url_resolver_hashes)
 			.field("blocked_users", &self.blocked_users)
 			.finish()
@@ -83,7 +86,10 @@ impl std::fmt::Debug for UserAuth {
 #[derive(Debug, Clone, Deserialize, PartialEq, Eq, Hash)]
 /// A list of friends
 pub struct Friends(
-	#[cfg_attr(not(feature = "debug"), serde_as(as = "serde_with::VecSkipError<_>"))]
+	#[cfg_attr(
+		not(feature = "debug"),
+		serde_as(as = "serde_with::VecSkipError<_>")
+	)]
 	pub Vec<AssetBaseWithCategories>,
 );
 
@@ -92,7 +98,10 @@ pub struct Friends(
 #[derive(Debug, Clone, Deserialize, PartialEq, Eq, Hash)]
 /// A list of friend requests
 pub struct FriendRequests(
-	#[cfg_attr(not(feature = "debug"), serde_as(as = "serde_with::VecSkipError<_>"))]
+	#[cfg_attr(
+		not(feature = "debug"),
+		serde_as(as = "serde_with::VecSkipError<_>")
+	)]
 	pub Vec<AssetBase>,
 );
 
@@ -113,6 +122,9 @@ pub struct UserOnlineStatusChange {
 #[serde(rename_all = "camelCase")]
 /// A list of user online status change events
 pub struct OnlineUserStatusChanges(
-	#[cfg_attr(not(feature = "debug"), serde_as(as = "serde_with::VecSkipError<_>"))]
+	#[cfg_attr(
+		not(feature = "debug"),
+		serde_as(as = "serde_with::VecSkipError<_>")
+	)]
 	pub Vec<UserOnlineStatusChange>,
 );

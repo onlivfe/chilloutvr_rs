@@ -1,11 +1,12 @@
 #[cfg(feature = "http")]
+use racal::Queryable;
+use serde::Serialize;
+
+#[cfg(feature = "http")]
 use crate::{
 	model::{ResponseDataWrapper, WorldDetailsResponse, WorldInstance},
 	query::NoAuthentication,
 };
-#[cfg(feature = "http")]
-use racal::Queryable;
-use serde::Serialize;
 
 /// Gets details about a specific world
 #[cfg(feature = "http")]
