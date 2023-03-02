@@ -1,4 +1,4 @@
-35
+40
 ABI
 WS
 CVR
@@ -32,3 +32,5 @@ emissive
 DLC
 CCK
 CCK's
+enums
+serde

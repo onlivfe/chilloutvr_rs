@@ -1,10 +1,18 @@
-//! Typed models for [`ChilloutVR`](https://store.steampowered.com/app/661130/ChilloutVR/)'s API.
+//! [`ChilloutVR`](https://store.steampowered.com/app/661130/ChilloutVR/)'s API models in rust.
 //!
-//! There is no documentation for the API, so some things might be a bit off.
+//! This is fully unofficial and in no way affiliated, endorsed, supported,
+//! or created by Alpha Blend Interactive, the creators of `ChilloutVR`.
 //!
-//! The ABI team hasn't publicly stated that the API can be used,
-//! so it'd be better to ask them before actually using this.
-//! You've been warned, so don't complain if you get punished for it.
+//! The crate has models of the responses, with proper serde support.
+//! It also definitions for the requests, using [`racal`](https://docs.rs/racal/latest/racal/) for the HTTP parts,
+//! and big request/response enums for `WebSocket`s,
+//! meaning that there's no lock-in to a single API client.
+//! An example API client is provided for convenience though using [`reqwest`](https://crates.io/crates/reqwest).
+//!
+//! The API technically isn't public yet, so proceed with your own discretion.
+//! That also means there is no official API documentation.
+//! Which means it's possible that some things are wrong
+//! and/or will change a lot in the future.
 
 #![cfg_attr(nightly, feature(doc_auto_cfg))]
 #![deny(clippy::all)]

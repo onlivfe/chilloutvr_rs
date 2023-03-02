@@ -6,30 +6,31 @@
 [![Crates.io](https://img.shields.io/crates/v/chilloutvr.svg)](https://crates.io/crates/chilloutvr)
 [![Docs](https://docs.rs/chilloutvr/badge.svg)](https://docs.rs/crate/chilloutvr/)
 
-WIP predicted rust models of [ChilloutVR](https://store.steampowered.com/app/661130/ChilloutVR/)'s upcoming API.
+A rust crate for [ChilloutVR](https://store.steampowered.com/app/661130/ChilloutVR/)'s API.
 
 This is fully unofficial and in no way affiliated, endorsed, supported, or created by Alpha Blend Interactive, the creators of ChilloutVR.
 
-Note that there is no official API documentation yet and usage of the API is frowned upon as of writing.
-If it wasn't clear enough: purpose of this crate isn't to connect to the API currently.
-The purpose is to be able to model clients to use the models before the API goes live.
-Though note that the models will most likely change in breaking ways.
+The crate has models of the responses, with proper serde support.
+It also definitions for the requests, using [`racal`](https://docs.rs/racal/latest/racal/) for the HTTP parts and big request/response structs for WebSockets, meaning that there's no lock-in to a single API client.
+An example API client using [`reqwest`](https://crates.io/crates/reqwest) is provided for convenience though.
 
-Once the API is stabilized a bit more and it's usage allowed, an API client is planned to be implemented.
+The API technically isn't public yet, so proceed with your own discretion.
+That also means there is no official API documentation.
+Which means it's possible that some things are wrong and/or will change a lot in the future.
 
 ## Testing
 
 The integration tests contact the live API.
-That's why they are ignored by default.
+While a mock API could be created, it'd defeat the purpose of the tests.
+Which is to see that the client can actually use the real current API.
+While the requests & responses could be saved for a mock API, ensuring it stays up to date and behaves exactly like the real one is infeasible.
 
-Some of them also require authentication.
-
-Sadly not all the things can even be reliably tested without creating a mock API.
-Which in turn defeats the purpose of the tests in the first place.
+The integration tests are ignored by default for this reason.
+A lot of the tests also require actual authentication with an account, which you can read more about below.
 
 ### Creating a user session manually
 
-You can generate a `user-sesion.json` file with logging in via curl for example:
+You can generate a `user-auth.json` file with logging in via curl for example:
 
 ```shell
 curl --request POST \
@@ -40,17 +41,26 @@ curl --request POST \
   "username": "email@Address",
   "password": "pa$$word",
   "authType": "LoginCredentials"
-}' > user-session.json
+}' > user-auth.json
 ```
 
-### Running ignored tests
+The resulting file should look something like the following:
 
-Make sure that you've got:
+```json
+{
+ "message": "Successfully logged in as ljoonal",
+ "data": {
+  "username": "ljoonal",
+  "accessKey": "long-string",
+  "userId": "uuid",
+  "more fields...": "...and their values"
+ }
+}
+```
 
-- an internet connection
-- a valid `user-sesion.json`
+### Running live API tests
 
-Then just run the tests;
+Make sure that you've got an internet connection & a valid `user-auth.json`.
 
 ```sh
 # A specific test with output logging
