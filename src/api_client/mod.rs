@@ -33,13 +33,12 @@ use governor::{
 	Quota,
 	RateLimiter,
 };
-#[cfg(feature = "http_client")]
-use racal::{Queryable, RequestMethod};
+use reqwest::RequestBuilder;
 #[cfg(feature = "http_client")]
 use reqwest::{header::HeaderMap, Client};
-use serde::{de::DeserializeOwned, ser::Serialize};
+use serde::ser::Serialize;
 
-use crate::query::{CvrApiUnwrapping, NoAuthentication, SavedLoginCredentials};
+use crate::query::{NoAuthentication, SavedLoginCredentials};
 
 #[cfg(feature = "ws_client")]
 mod ws;
@@ -66,6 +65,16 @@ impl From<reqwest::Error> for ApiError {
 	fn from(err: reqwest::Error) -> Self { Self::Reqwest(err) }
 }
 
+#[cfg(feature = "http_client")]
+impl From<racal::reqwest::ApiError> for ApiError {
+	fn from(err: racal::reqwest::ApiError) -> Self {
+		match err {
+			racal::reqwest::ApiError::Reqwest(e) => Self::Reqwest(e),
+			racal::reqwest::ApiError::Serde(e) => Self::Serde(e),
+		}
+	}
+}
+
 #[cfg(feature = "ws_client")]
 impl From<tokio_tungstenite::tungstenite::Error> for ApiError {
 	fn from(err: tokio_tungstenite::tungstenite::Error) -> Self {
@@ -77,61 +86,6 @@ impl From<tokio_tungstenite::tungstenite::Error> for ApiError {
 type NormalRateLimiter =
 	RateLimiter<NotKeyed, InMemoryState, DefaultClock, NoOpMiddleware>;
 
-/// The main API client without authentication
-#[cfg(feature = "http_client")]
-pub struct UnauthenticatedCVR {
-	user_agent: String,
-	#[cfg(feature = "http_client")]
-	http: Client,
-	#[cfg(feature = "http_client")]
-	http_rate_limiter: NormalRateLimiter,
-}
-
-/// The main API client with authentication
-pub struct AuthenticatedCVR {
-	user_agent: String,
-	#[cfg(feature = "http_client")]
-	http: Client,
-	#[cfg(feature = "http_client")]
-	http_rate_limiter: NormalRateLimiter,
-	#[cfg(feature = "ws_client")]
-	ws: tokio::sync::RwLock<Option<ws::Client>>,
-	#[cfg(feature = "ws_client")]
-	auth: SavedLoginCredentials,
-}
-
-#[cfg(feature = "http_client")]
-async fn base_query<R, FromState: Send, T>(
-	http: &Client, api_state: FromState, rate_limiter: &NormalRateLimiter,
-	queryable: T,
-) -> Result<R, ApiError>
-where
-	R: DeserializeOwned,
-	T: Queryable<FromState, R> + Send + Sync,
-{
-	let mut request = http.request(
-		match queryable.method(&api_state) {
-			RequestMethod::Get => reqwest::Method::GET,
-			RequestMethod::Head => reqwest::Method::HEAD,
-			RequestMethod::Patch => reqwest::Method::PATCH,
-			RequestMethod::Post => reqwest::Method::POST,
-			RequestMethod::Put => reqwest::Method::PUT,
-			RequestMethod::Delete => reqwest::Method::DELETE,
-		},
-		queryable.url(&api_state),
-	);
-	if let Some(body) = queryable.body(&api_state) {
-		request = request.body(body?);
-	}
-
-	rate_limiter.until_ready().await;
-	let response = request.send().await?.error_for_status()?;
-	// TODO: Figure out if there are any extra rate limit headers to respect
-
-	let bytes = response.bytes().await?;
-	Ok(queryable.deserialize(&bytes)?)
-}
-
 #[cfg(feature = "http_client")]
 #[must_use]
 fn http_rate_limiter() -> NormalRateLimiter {
@@ -141,6 +95,56 @@ fn http_rate_limiter() -> NormalRateLimiter {
 		Quota::per_minute(NonZeroU32::try_from(12).unwrap())
 			.allow_burst(NonZeroU32::try_from(5).unwrap()),
 	)
+}
+
+/// The main API client without authentication
+#[cfg(feature = "http_client")]
+pub struct UnauthenticatedCVR {
+	user_agent: String,
+	http: Client,
+	http_rate_limiter: NormalRateLimiter,
+}
+
+#[cfg(feature = "http_client")]
+#[async_trait::async_trait]
+impl racal::reqwest::ApiClient<NoAuthentication> for UnauthenticatedCVR {
+	fn state(&self) -> &NoAuthentication { &NoAuthentication {} }
+
+	fn client(&self) -> &reqwest::Client { &self.http }
+
+	async fn before_request(
+		&self, req: RequestBuilder,
+	) -> Result<RequestBuilder, racal::reqwest::ApiError> {
+		self.http_rate_limiter.until_ready().await;
+		Ok(req)
+	}
+}
+
+/// The main API client with authentication
+pub struct AuthenticatedCVR {
+	user_agent: String,
+	auth: SavedLoginCredentials,
+	#[cfg(feature = "http_client")]
+	http: Client,
+	#[cfg(feature = "http_client")]
+	http_rate_limiter: NormalRateLimiter,
+	#[cfg(feature = "ws_client")]
+	ws: tokio::sync::RwLock<Option<ws::Client>>,
+}
+
+#[cfg(feature = "http_client")]
+#[async_trait::async_trait]
+impl racal::reqwest::ApiClient<SavedLoginCredentials> for AuthenticatedCVR {
+	fn state(&self) -> &SavedLoginCredentials { &self.auth }
+
+	fn client(&self) -> &reqwest::Client { &self.http }
+
+	async fn before_request(
+		&self, req: RequestBuilder,
+	) -> Result<RequestBuilder, racal::reqwest::ApiError> {
+		self.http_rate_limiter.until_ready().await;
+		Ok(req)
+	}
 }
 
 impl AuthenticatedCVR {
@@ -200,54 +204,9 @@ impl AuthenticatedCVR {
 			http_rate_limiter: http_rate_limiter(),
 			#[cfg(feature = "ws_client")]
 			ws: tokio::sync::RwLock::new(None),
-			#[cfg(feature = "ws_client")]
 			auth,
 			user_agent,
 		})
-	}
-
-	/// Sends a query to the CVR API
-	///
-	/// Also automatically unwraps the data field, discarding the message.
-	/// Use [`cvr.query_without_unwrapping`](Self::query_without_unwrapping) if
-	/// you want to access the message field too.
-	///
-	/// # Errors
-	///
-	/// If something with the request failed.
-	#[cfg(feature = "http_client")]
-	pub async fn query<'a, ReturnType, WrappedType, FromState, T>(
-		&'a self, queryable: T,
-	) -> Result<ReturnType, ApiError>
-	where
-		WrappedType: CvrApiUnwrapping<ReturnType> + DeserializeOwned,
-		FromState: From<&'a SavedLoginCredentials> + Send,
-		T: Queryable<FromState, WrappedType> + Send + Sync,
-	{
-		let state = FromState::from(&self.auth);
-		Ok(
-			base_query(&self.http, state, &self.http_rate_limiter, queryable)
-				.await?
-				.unwrap_data(),
-		)
-	}
-
-	/// Sends a query to the CVR API
-	///
-	/// # Errors
-	///
-	/// If something with the request failed.
-	#[cfg(feature = "http_client")]
-	pub async fn query_without_unwrapping<'a, R, FromState, T>(
-		&'a self, queryable: T,
-	) -> Result<R, ApiError>
-	where
-		R: DeserializeOwned,
-		FromState: From<&'a SavedLoginCredentials> + Send,
-		T: Queryable<FromState, R> + Send + Sync,
-	{
-		let state = FromState::from(&self.auth);
-		base_query(&self.http, state, &self.http_rate_limiter, queryable).await
 	}
 
 	/// Opens the WebSocket connection if it wasn't already open
@@ -405,49 +364,5 @@ impl UnauthenticatedCVR {
 			http_rate_limiter: http_rate_limiter(),
 			user_agent,
 		})
-	}
-
-	/// Sends a query to the CVR API
-	///
-	/// Also automatically unwraps the data field, discarding the message.
-	/// Use [`cvr.query_without_unwrapping`](Self::query_without_unwrapping) if
-	/// you want to access the message field too.
-	///
-	/// # Errors
-	///
-	/// If something with the request failed.
-	#[cfg(feature = "http_client")]
-	pub async fn query<'a, ReturnType, WrappedType, FromState, T>(
-		&self, queryable: T,
-	) -> Result<ReturnType, ApiError>
-	where
-		WrappedType: CvrApiUnwrapping<ReturnType> + DeserializeOwned,
-		FromState: From<&'a NoAuthentication> + Send,
-		T: Queryable<FromState, WrappedType> + Send + Sync,
-	{
-		let state = FromState::from(&NoAuthentication {});
-		Ok(
-			base_query(&self.http, state, &self.http_rate_limiter, queryable)
-				.await?
-				.unwrap_data(),
-		)
-	}
-
-	/// Sends a query to the CVR API
-	///
-	/// # Errors
-	///
-	/// If something with the request failed.
-	#[cfg(feature = "http_client")]
-	pub async fn query_without_unwrapping<'a, R, FromState, T>(
-		&'a self, queryable: T,
-	) -> Result<R, ApiError>
-	where
-		R: DeserializeOwned,
-		FromState: From<&'a NoAuthentication> + Send,
-		T: Queryable<FromState, R> + Send + Sync,
-	{
-		let state = FromState::from(&NoAuthentication {});
-		base_query(&self.http, state, &self.http_rate_limiter, queryable).await
 	}
 }

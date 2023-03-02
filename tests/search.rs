@@ -1,6 +1,7 @@
 #![cfg(feature = "http_client")]
 
 use chilloutvr::{id, model::SearchResults};
+use racal::reqwest::ApiClient;
 mod common;
 
 #[tokio::test]
@@ -9,7 +10,7 @@ async fn search() -> Result<(), chilloutvr::api_client::ApiError> {
 	let api_client = common::api_client();
 
 	let query = chilloutvr::query::Search { term: "club".to_string() };
-	let results: SearchResults = api_client.query(query).await?;
+	let results: SearchResults = api_client.query(query).await?.data;
 
 	dbg!(&results);
 

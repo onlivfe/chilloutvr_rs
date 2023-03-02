@@ -3,7 +3,7 @@
 //! An example implementation is provided with reqwest,
 //! from `chilloutvr::api_client` if you enabled the `api_client` feature.
 
-use serde::{de::DeserializeOwned, Deserialize, Serialize};
+use serde::{Deserialize, Serialize};
 
 mod friends;
 pub use friends::*;
@@ -24,29 +24,16 @@ pub use invites::*;
 /// into account, thus not using `()` for the API state.
 pub struct NoAuthentication {}
 
-impl From<&Self> for NoAuthentication {
-	fn from(_: &Self) -> Self { Self {} }
+impl racal::FromApiState<Self> for NoAuthentication {
+	fn from_state(state: &Self) -> &Self { state }
 }
 
-impl From<&SavedLoginCredentials> for NoAuthentication {
-	fn from(_: &SavedLoginCredentials) -> Self { Self {} }
+impl racal::FromApiState<SavedLoginCredentials> for NoAuthentication {
+	fn from_state(_: &SavedLoginCredentials) -> &Self { &Self {} }
 }
 
-/// Supports the CVR custom API "unwrapping" the data
-#[cfg(feature = "http")]
-pub trait CvrApiUnwrapping<UnwrappedType>: DeserializeOwned {
-	/// Unwraps the data into a more meaningful value
-	fn unwrap_data(self) -> UnwrappedType;
-}
-#[cfg(feature = "http")]
-impl<T: DeserializeOwned> CvrApiUnwrapping<T> for T {
-	fn unwrap_data(self) -> T { self }
-}
-#[cfg(feature = "http")]
-impl<T: DeserializeOwned> CvrApiUnwrapping<T>
-	for crate::model::ResponseDataWrapper<T>
-{
-	fn unwrap_data(self) -> T { self.data }
+impl racal::FromApiState<Self> for SavedLoginCredentials {
+	fn from_state(state: &Self) -> &Self { state }
 }
 
 /// A WS message going from the client to the CVR server

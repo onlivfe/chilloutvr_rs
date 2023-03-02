@@ -1,6 +1,7 @@
 #![cfg(feature = "http_client")]
 
 use chilloutvr::model::{FriendRequests, Friends};
+use racal::reqwest::ApiClient;
 
 mod common;
 
@@ -10,7 +11,7 @@ async fn friend_requests() -> Result<(), chilloutvr::api_client::ApiError> {
 	let api_client = common::api_client();
 
 	let query = chilloutvr::query::FriendRequests {};
-	let results: FriendRequests = api_client.query(query).await?;
+	let results: FriendRequests = api_client.query(query).await?.data;
 	// To run this test, you should have at least 1 friend request, oh no for you
 	// ~
 
@@ -36,7 +37,7 @@ async fn friends() -> Result<(), chilloutvr::api_client::ApiError> {
 	let api_client = common::api_client();
 
 	let query = chilloutvr::query::FriendList {};
-	let results: Friends = api_client.query(query).await?;
+	let results: Friends = api_client.query(query).await?.data;
 	// To run this test, you should have at least 1 friend, oh no for you ~
 
 	dbg!(&results);

@@ -17,6 +17,8 @@
 #![warn(clippy::nursery)]
 // My project my choice, tabs are literally made for indentation, spaces not.
 #![allow(clippy::tabs_in_doc_comments)]
+// Not much can be done about it :/
+#![allow(clippy::multiple_crate_versions)]
 
 // ...Yes, mixed `/1/` and `/v1/`....
 // ABI I love you, but plz, this is next level sinning with your API
