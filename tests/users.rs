@@ -1,11 +1,15 @@
 #![cfg(feature = "http_client")]
 
-use chilloutvr::{api_client::ApiClient, id, model::UserDetails};
+use chilloutvr::{
+	api_client::{ApiClient, ApiError},
+	id,
+	model::UserDetails,
+};
 mod common;
 
 #[tokio::test]
 #[ignore]
-async fn user() -> Result<(), chilloutvr::api_client::ApiError> {
+async fn user() -> Result<(), ApiError> {
 	let api_client = common::api_client();
 
 	let user_id =

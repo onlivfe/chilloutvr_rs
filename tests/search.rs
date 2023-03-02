@@ -1,11 +1,15 @@
 #![cfg(feature = "http_client")]
 
-use chilloutvr::{api_client::ApiClient, id, model::SearchResults};
+use chilloutvr::{
+	api_client::{ApiClient, ApiError},
+	id,
+	model::SearchResults,
+};
 mod common;
 
 #[tokio::test]
 #[ignore]
-async fn search() -> Result<(), chilloutvr::api_client::ApiError> {
+async fn search() -> Result<(), ApiError> {
 	let api_client = common::api_client();
 
 	let query = chilloutvr::query::Search { term: "club".to_string() };

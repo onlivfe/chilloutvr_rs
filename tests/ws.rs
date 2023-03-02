@@ -6,7 +6,7 @@ mod common;
 
 #[tokio::test]
 #[ignore]
-async fn online() -> Result<(), chilloutvr::api_client::ApiError> {
+async fn online() -> Result<(), ApiError> {
 	let api_client = common::api_client();
 	api_client.send(Online).await?;
 
@@ -15,7 +15,7 @@ async fn online() -> Result<(), chilloutvr::api_client::ApiError> {
 
 #[tokio::test]
 #[ignore]
-async fn open_ws() -> Result<(), chilloutvr::api_client::ApiError> {
+async fn open_ws() -> Result<(), ApiError> {
 	let api_client = common::api_client();
 
 	let listener = match api_client.listen().await {

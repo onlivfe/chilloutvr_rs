@@ -1,7 +1,7 @@
 #![cfg(feature = "http_client")]
 
 use chilloutvr::{
-	api_client::ApiClient,
+	api_client::{ApiClient, ApiError},
 	model::{FriendRequests, Friends},
 };
 
@@ -9,7 +9,7 @@ mod common;
 
 #[tokio::test]
 #[ignore]
-async fn friend_requests() -> Result<(), chilloutvr::api_client::ApiError> {
+async fn friend_requests() -> Result<(), ApiError> {
 	let api_client = common::api_client();
 
 	let query = chilloutvr::query::FriendRequests {};
@@ -35,7 +35,7 @@ async fn friend_requests() -> Result<(), chilloutvr::api_client::ApiError> {
 
 #[tokio::test]
 #[ignore]
-async fn friends() -> Result<(), chilloutvr::api_client::ApiError> {
+async fn friends() -> Result<(), ApiError> {
 	let api_client = common::api_client();
 
 	let query = chilloutvr::query::FriendList {};
