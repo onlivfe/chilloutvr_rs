@@ -1,7 +1,9 @@
 #![cfg(feature = "http_client")]
 
-use chilloutvr::model::{FriendRequests, Friends};
-use racal::reqwest::ApiClient;
+use chilloutvr::{
+	api_client::ApiClient,
+	model::{FriendRequests, Friends},
+};
 
 mod common;
 

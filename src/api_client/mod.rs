@@ -33,6 +33,9 @@ use governor::{
 	Quota,
 	RateLimiter,
 };
+#[cfg(feature = "http_client")]
+pub use racal::reqwest::ApiClient;
+#[cfg(feature = "http_client")]
 use reqwest::RequestBuilder;
 #[cfg(feature = "http_client")]
 use reqwest::{header::HeaderMap, Client};

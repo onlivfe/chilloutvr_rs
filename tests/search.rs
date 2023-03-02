@@ -1,7 +1,6 @@
 #![cfg(feature = "http_client")]
 
-use chilloutvr::{id, model::SearchResults};
-use racal::reqwest::ApiClient;
+use chilloutvr::{api_client::ApiClient, id, model::SearchResults};
 mod common;
 
 #[tokio::test]
