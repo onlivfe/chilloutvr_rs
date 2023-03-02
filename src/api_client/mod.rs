@@ -232,8 +232,10 @@ impl AuthenticatedCVR {
 		self.http_rate_limiter.until_ready().await;
 		let client =
 			ws::Client::new(self.user_agent.clone(), self.auth.clone()).await?;
-		let mut lock = self.ws.write().await;
-		*lock = Some(client);
+		{
+			let mut lock = self.ws.write().await;
+			*lock = Some(client);
+		}
 
 		Ok(())
 	}
