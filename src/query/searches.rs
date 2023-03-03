@@ -1,5 +1,6 @@
 #[cfg(feature = "http")]
 use racal::Queryable;
+use serde::{Deserialize, Serialize};
 
 #[cfg(feature = "http")]
 use crate::{
@@ -9,7 +10,7 @@ use crate::{
 
 /// Search for things using a search term
 #[cfg(feature = "http")]
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize, Serialize)]
 pub struct Search {
 	/// The search term to use
 	pub term: String,

@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 
 #[cfg(feature = "http")]
-#[derive(Clone, Debug, PartialEq, Eq, Hash, Deserialize, Serialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize, Serialize)]
 #[serde(tag = "type", content = "id")]
 #[serde(rename_all = "camelCase")]
 /// The ID of a searches' result, which also tells the type of the search result
@@ -44,7 +44,7 @@ pub struct SearchResult {
 
 #[cfg(feature = "http")]
 #[serde_with::serde_as]
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize, Serialize)]
 /// Results for a search
 pub struct SearchResults(
 	#[cfg_attr(

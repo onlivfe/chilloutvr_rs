@@ -1,6 +1,6 @@
 #[cfg(feature = "http")]
 use racal::Queryable;
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 
 #[cfg(feature = "http")]
 use crate::{
@@ -10,7 +10,7 @@ use crate::{
 
 /// Gets details about a specific instance
 #[cfg(feature = "http")]
-#[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Instance {
 	/// The ID of the instance to get more information about

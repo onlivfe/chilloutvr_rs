@@ -1,6 +1,6 @@
 #[cfg(feature = "http")]
 use racal::Queryable;
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 
 #[cfg(feature = "ws")]
 use super::{RequestType, Requestable};
@@ -12,7 +12,7 @@ use crate::{
 
 /// Gets details about a specific user
 #[cfg(feature = "http")]
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize, Serialize)]
 pub struct UserDetails {
 	/// The ID of the user to get more information about
 	pub user_id: crate::id::User,
@@ -29,7 +29,7 @@ impl Queryable<NoAuthentication, ResponseDataWrapper<crate::model::UserDetails>>
 
 /// Credentials to try to login and fetch an access token with
 #[cfg(feature = "http")]
-#[derive(Clone, PartialEq, Eq, Hash, Serialize)]
+#[derive(Clone, PartialEq, Eq, Hash, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct LoginCredentials {
 	/// The email address, which the API calls username
@@ -50,7 +50,7 @@ impl std::fmt::Debug for LoginCredentials {
 }
 
 /// Saved access key and username which can also be used to login
-#[derive(Clone, PartialEq, Eq, Hash, Serialize)]
+#[derive(Clone, PartialEq, Eq, Hash, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct SavedLoginCredentials {
 	/// The username the access key is for
@@ -87,7 +87,7 @@ impl From<&Self> for SavedLoginCredentials {
 
 /// Authentication to login to CVR
 #[cfg(feature = "http")]
-#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 #[serde(tag = "auth_type")]
 pub enum AuthType {
@@ -112,7 +112,7 @@ impl Queryable<NoAuthentication, ResponseDataWrapper<UserAuth>>
 
 /// Adds an user to the blocked users list
 #[cfg(feature = "ws")]
-#[derive(Debug, Clone, PartialEq, Eq, Hash, serde::Serialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct BlockUser {
 	/// The ID of the user to add to the blocked users list

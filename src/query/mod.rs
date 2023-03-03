@@ -18,6 +18,7 @@ pub use worlds::*;
 mod invites;
 pub use invites::*;
 
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize, Serialize)]
 /// [`racal::Queryable`](racal::Queryable)'s `RequiredApiState`.
 ///
 /// Even unauthenticated requests to CVR's HTTP API should take rate limits
@@ -94,7 +95,7 @@ pub struct RequestWrapper<T> {
 
 /// Mark the connected user account as being online
 #[cfg(feature = "ws")]
-#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Online;
 

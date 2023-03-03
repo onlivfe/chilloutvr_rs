@@ -1,6 +1,6 @@
 #[cfg(feature = "http")]
 use racal::Queryable;
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 
 #[cfg(feature = "http")]
 use crate::{
@@ -10,7 +10,7 @@ use crate::{
 
 /// Gets details about a specific world
 #[cfg(feature = "http")]
-#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize, Serialize)]
 pub struct WorldDetailsQuery {
 	/// The ID of the world to get more information about
 	pub world_id: crate::id::Asset,
@@ -27,7 +27,7 @@ impl Queryable<NoAuthentication, ResponseDataWrapper<WorldDetailsResponse>>
 
 /// Lists worlds
 #[cfg(feature = "http")]
-#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize, Serialize)]
 pub struct WorldListQuery {
 	// TODO: Enum-ify
 	/// The category of the worlds to list in

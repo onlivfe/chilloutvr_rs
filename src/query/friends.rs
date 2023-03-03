@@ -1,5 +1,6 @@
 #[cfg(feature = "http")]
 use racal::Queryable;
+use serde::{Deserialize, Serialize};
 
 #[cfg(feature = "ws")]
 use super::{RequestType, Requestable};
@@ -11,7 +12,7 @@ use crate::{
 
 /// Gets your friends list
 #[cfg(feature = "http")]
-#[derive(Default, Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize, Serialize)]
 pub struct FriendList();
 
 #[cfg(feature = "http")]
@@ -25,7 +26,7 @@ impl Queryable<SavedLoginCredentials, ResponseDataWrapper<Friends>>
 
 /// Gets friend requests
 #[cfg(feature = "http")]
-#[derive(Default, Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize, Serialize)]
 pub struct FriendRequests();
 
 #[cfg(feature = "http")]
@@ -42,7 +43,7 @@ impl
 
 /// Requests an user to be the current user's friend
 #[cfg(feature = "ws")]
-#[derive(Debug, Clone, PartialEq, Eq, Hash, serde::Serialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct FriendRequest {
 	/// The ID of the user to request to be friends with
@@ -56,7 +57,7 @@ impl Requestable for FriendRequest {
 
 /// Accepts another user's request to be friends
 #[cfg(feature = "ws")]
-#[derive(Debug, Clone, PartialEq, Eq, Hash, serde::Serialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct AcceptFriendRequest {
 	/// The ID of the user that this response is to
@@ -70,7 +71,7 @@ impl Requestable for AcceptFriendRequest {
 
 /// Decline another user's request to be friends
 #[cfg(feature = "ws")]
-#[derive(Debug, Clone, PartialEq, Eq, Hash, serde::Serialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct DeclineFriendRequest {
 	/// The ID of the user that this response is to
@@ -84,7 +85,7 @@ impl Requestable for DeclineFriendRequest {
 
 /// Removes an user from the current user's friends list
 #[cfg(feature = "ws")]
-#[derive(Debug, Clone, PartialEq, Eq, Hash, serde::Serialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct UnFriend {
 	/// The ID of the user to remove from the friends list

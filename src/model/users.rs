@@ -83,7 +83,7 @@ impl std::fmt::Debug for UserAuth {
 
 #[cfg(feature = "http")]
 #[serde_with::serde_as]
-#[derive(Debug, Clone, Deserialize, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize, Serialize)]
 /// A list of friends
 pub struct Friends(
 	#[cfg_attr(
@@ -95,7 +95,7 @@ pub struct Friends(
 
 #[cfg(feature = "http")]
 #[serde_with::serde_as]
-#[derive(Debug, Clone, Deserialize, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize, Serialize)]
 /// A list of friend requests
 pub struct FriendRequests(
 	#[cfg_attr(

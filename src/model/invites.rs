@@ -1,11 +1,11 @@
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 
 #[cfg(feature = "ws")]
 use crate::model::{UserBase, WorldDisplayDetails};
 
 /// A request from the sender to be invited by the receiver
 #[cfg(feature = "ws")]
-#[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct InviteRequest {
 	/// The ID of the invite
@@ -18,7 +18,7 @@ pub struct InviteRequest {
 
 /// An invite from someone to join their instance
 #[cfg(feature = "ws")]
-#[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Invite {
 	/// The ID of the invite
@@ -37,7 +37,7 @@ pub struct Invite {
 
 #[cfg(feature = "ws")]
 #[serde_with::serde_as]
-#[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 /// A list of invites
 pub struct Invites(
@@ -50,7 +50,7 @@ pub struct Invites(
 
 #[cfg(feature = "ws")]
 #[serde_with::serde_as]
-#[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 /// A list of invite requests
 pub struct InviteRequests(
