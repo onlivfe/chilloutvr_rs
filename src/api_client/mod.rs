@@ -51,12 +51,12 @@ mod ws;
 pub enum ApiError {
 	/// An error happened with serialization
 	Serde(serde_json::Error),
-	/// An error happened with the request itself
+	/// An error happened with the HTTPS request
 	#[cfg(feature = "http_client")]
-	Reqwest(reqwest::Error),
+	Http(reqwest::Error),
 	/// An error happened with the WS connection
 	#[cfg(feature = "ws_client")]
-	Tungstenite(tokio_tungstenite::tungstenite::Error),
+	WebSocket(ezsockets::Error),
 }
 
 impl From<serde_json::Error> for ApiError {
@@ -65,24 +65,22 @@ impl From<serde_json::Error> for ApiError {
 
 #[cfg(feature = "http_client")]
 impl From<reqwest::Error> for ApiError {
-	fn from(err: reqwest::Error) -> Self { Self::Reqwest(err) }
+	fn from(err: reqwest::Error) -> Self { Self::Http(err) }
 }
 
 #[cfg(feature = "http_client")]
 impl From<racal::reqwest::ApiError> for ApiError {
 	fn from(err: racal::reqwest::ApiError) -> Self {
 		match err {
-			racal::reqwest::ApiError::Reqwest(e) => Self::Reqwest(e),
+			racal::reqwest::ApiError::Reqwest(e) => Self::Http(e),
 			racal::reqwest::ApiError::Serde(e) => Self::Serde(e),
 		}
 	}
 }
 
 #[cfg(feature = "ws_client")]
-impl From<tokio_tungstenite::tungstenite::Error> for ApiError {
-	fn from(err: tokio_tungstenite::tungstenite::Error) -> Self {
-		Self::Tungstenite(err)
-	}
+impl From<ezsockets::Error> for ApiError {
+	fn from(err: ezsockets::Error) -> Self { Self::WebSocket(err) }
 }
 
 #[cfg(feature = "http_client")]
@@ -221,10 +219,8 @@ impl AuthenticatedCVR {
 	pub async fn ws_connect(&self) -> Result<(), ApiError> {
 		{
 			let lock = self.ws.read().await;
-			if let Some(ws_client) = &*lock {
-				if ws_client.is_ok() {
-					return Ok(());
-				}
+			if lock.is_some() {
+				return Ok(());
 			}
 		}
 
@@ -253,12 +249,7 @@ impl AuthenticatedCVR {
 	#[cfg(feature = "ws_client")]
 	pub async fn ws_is_connected(&self) -> bool {
 		let lock = self.ws.read().await;
-		if let Some(ws_client) = &*lock {
-			if ws_client.is_ok() {
-				return true;
-			}
-		}
-		false
+		lock.is_some()
 	}
 
 	/// Sends a WS message to the CVR API.
@@ -274,9 +265,7 @@ impl AuthenticatedCVR {
 		{
 			let lock = self.ws.read().await;
 			if let Some(ws_client) = &*lock {
-				if ws_client.is_ok() {
-					return ws_client.send(requestable).await;
-				}
+				return ws_client.send(requestable);
 			}
 		}
 
@@ -291,7 +280,6 @@ impl AuthenticatedCVR {
 			.as_ref()
 			.expect("client should exist as lock was never dropped")
 			.send(requestable)
-			.await
 	}
 
 	/// Listens to events from the WS connection
@@ -305,9 +293,7 @@ impl AuthenticatedCVR {
 		{
 			let lock = self.ws.read().await;
 			if let Some(ws_client) = &*lock {
-				if ws_client.is_ok() {
-					return Ok(ws_client.listen());
-				}
+				return Ok(ws_client.listen());
 			}
 		}
 

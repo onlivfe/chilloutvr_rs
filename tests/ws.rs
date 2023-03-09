@@ -18,23 +18,7 @@ async fn online() -> Result<(), ApiError> {
 async fn open_ws() -> Result<(), ApiError> {
 	let api_client = common::api_client();
 
-	let listener = match api_client.listen().await {
-		Ok(listener) => listener,
-		Err(ApiError::Tungstenite(
-			tokio_tungstenite::tungstenite::Error::Http(mut resp),
-		)) => {
-			// Turn the body into human readable from the bytes
-			let mut body = None;
-			std::mem::swap(resp.body_mut(), &mut body);
-			panic!(
-				"Creating WS connection gave HTTP status code {} with body: {:?}\nMore info: {:?}",
-				resp.status(),
-				body.as_ref().map(|bytes| String::from_utf8_lossy(bytes)),
-				resp
-			);
-		}
-		Err(err) => panic!("Creating WS connection failed, {:?}", err),
-	};
+	let listener = api_client.listen().await.unwrap();
 	let mut listener_lock = (*listener).lock().await;
 	let next = listener_lock
 		.next()

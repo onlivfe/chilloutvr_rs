@@ -98,9 +98,7 @@ pub enum AuthType {
 }
 
 #[cfg(feature = "http")]
-impl Queryable<NoAuthentication, ResponseDataWrapper<UserAuth>>
-	for LoginCredentials
-{
+impl Queryable<NoAuthentication, ResponseDataWrapper<UserAuth>> for AuthType {
 	fn url(&self, _: &NoAuthentication) -> String {
 		format!("{}/users/auth", crate::API_V1_HTTP_URL)
 	}
