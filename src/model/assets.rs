@@ -156,9 +156,9 @@ impl From<String> for AssetTag {
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 /// Very minimal details of an asset such as a world or an avatar
-pub struct AssetBase {
+pub struct AssetBase<Id = crate::id::Asset> {
 	/// The ID of the asset
-	pub id: crate::id::Asset,
+	pub id: Id,
 	/// The display name of the asset
 	pub name: String,
 	/// The preview image's URL
@@ -188,10 +188,10 @@ pub struct AssetBaseWithTags {
 #[serde_with::serde_as]
 #[serde(rename_all = "camelCase")]
 /// Details of an asset, including possible categories
-pub struct AssetBaseWithCategories {
+pub struct AssetBaseWithCategories<Id = crate::id::Asset> {
 	#[serde(flatten)]
 	/// Base details of the asset
-	pub base: AssetBase,
+	pub base: AssetBase<Id>,
 	#[serde(default)]
 	#[cfg_attr(
 		not(feature = "debug"),

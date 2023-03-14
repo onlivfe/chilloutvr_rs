@@ -81,6 +81,10 @@ impl std::fmt::Debug for UserAuth {
 	}
 }
 
+/// Details about a friend
+#[cfg(feature = "http")]
+pub type Friend = AssetBaseWithCategories<crate::id::User>;
+
 #[cfg(feature = "http")]
 #[serde_with::serde_as]
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize, Serialize)]
@@ -90,7 +94,7 @@ pub struct Friends(
 		not(feature = "debug"),
 		serde_as(as = "serde_with::VecSkipError<_>")
 	)]
-	pub Vec<AssetBaseWithCategories>,
+	pub Vec<Friend>,
 );
 
 #[cfg(feature = "http")]
