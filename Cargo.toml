@@ -7,7 +7,7 @@ authors = ["ljoonal"]
 description = "Unofficial rust types of ChilloutVR's API"
 repository = "https://github.com/onlivfe/chilloutvr_rs"
 documentation = "https://docs.rs/chilloutvr"
-keywords = ["cvr", "chilloutvr", "api", "rest", "websocket"]
+keywords = ["cvr", "chilloutvr", "api", "socialvr", "websocket"]
 categories = ["api-bindings", "games"]
 
 include = ["src", "Cargo.toml", "LICENSE", "README.md"]
@@ -37,7 +37,7 @@ debug = []
 
 [dependencies]
 serde = { version = "1.0", features = ["derive"] }
-serde_with = { version = "2.2", features = ["time_0_3"] }
+serde_with = { version = "2.3", features = ["time_0_3"] }
 time = { version = "0.3", default-features = false, features = [
 	"serde-well-known",
 ] }
@@ -63,7 +63,7 @@ features = ["json", "rustls-tls"]
 
 [dependencies.ezsockets]
 optional = true
-version = "0.4.3"
+version = "0.5.1"
 default-features = false
 features = ["client"]
 

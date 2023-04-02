@@ -30,20 +30,22 @@ impl InternalClientExt {
 }
 #[async_trait::async_trait]
 impl ezsockets::ClientExt for InternalClientExt {
-	type Params = ();
+	type Call = ();
 
-	async fn text(&mut self, text: String) -> Result<(), ezsockets::Error> {
+	async fn on_text(&mut self, text: String) -> Result<(), ezsockets::Error> {
 		self.send_ws_msg(text.as_bytes());
 		Ok(())
 	}
 
-	async fn binary(&mut self, bytes: Vec<u8>) -> Result<(), ezsockets::Error> {
+	async fn on_binary(
+		&mut self, bytes: Vec<u8>,
+	) -> Result<(), ezsockets::Error> {
 		self.send_ws_msg(&bytes);
 		Ok(())
 	}
 
-	async fn call(
-		&mut self, _params: Self::Params,
+	async fn on_call(
+		&mut self, _params: Self::Call,
 	) -> Result<(), ezsockets::Error> {
 		Ok(())
 	}
