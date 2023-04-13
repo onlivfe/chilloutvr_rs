@@ -33,18 +33,74 @@ use governor::{
 	Quota,
 	RateLimiter,
 };
+use http::{header::InvalidHeaderValue, HeaderName, HeaderValue};
 #[cfg(feature = "http_client")]
 pub use racal::reqwest::ApiClient;
 #[cfg(feature = "http_client")]
-use reqwest::RequestBuilder;
-#[cfg(feature = "http_client")]
-use reqwest::{header::HeaderMap, Client};
-use serde::ser::Serialize;
+use reqwest::{header::HeaderMap, Client, RequestBuilder};
 
-use crate::query::{NoAuthentication, SavedLoginCredentials};
+#[cfg(feature = "http_client")]
+use crate::query::NoAuthentication;
+use crate::query::SavedLoginCredentials;
 
 #[cfg(feature = "ws_client")]
 mod ws;
+
+/// Configuration for the API client
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
+#[non_exhaustive]
+pub struct ApiConfiguration {
+	/// The user agent of the API client
+	pub user_agent: String,
+	/// If the API client should indicate it has the mature access DLC enabled
+	pub mature_content_enabled: bool,
+	/// What platform the API client should indicate it's using (almost always
+	/// should remain `pc_standalone`)
+	pub platform: String,
+	/// A comma separated string of compatible (API?) versions
+	pub compatible_versions: String,
+}
+
+impl ApiConfiguration {
+	/// Creates a new API client configuration
+	#[must_use]
+	pub fn new(user_agent: String) -> Self {
+		Self {
+			user_agent,
+			mature_content_enabled: false,
+			platform: "pc_standalone".to_string(),
+			compatible_versions: "0,1,2".to_string(),
+		}
+	}
+
+	fn to_headers(
+		&self,
+	) -> Result<Vec<(HeaderName, HeaderValue)>, InvalidHeaderValue> {
+		Ok(vec![
+			(http::header::USER_AGENT, HeaderValue::try_from(&self.user_agent)?),
+			(
+				"MatureContentDlc".parse().unwrap(),
+				HeaderValue::try_from(self.mature_content_enabled.to_string())?,
+			),
+			("Platform".parse().unwrap(), HeaderValue::try_from(&self.platform)?),
+			(
+				"CompatibleVersions".parse().unwrap(),
+				HeaderValue::try_from(&self.compatible_versions)?,
+			),
+		])
+	}
+}
+
+impl SavedLoginCredentials {
+	fn to_headers(
+		&self,
+	) -> Result<Vec<(HeaderName, HeaderValue)>, InvalidHeaderValue> {
+		Ok(vec![
+			("Username".parse().unwrap(), self.username.parse()?),
+			("AccessKey".parse().unwrap(), self.access_key.parse()?),
+		])
+	}
+}
 
 /// An error that may happen with an API query
 #[derive(Debug)]
@@ -101,7 +157,7 @@ fn http_rate_limiter() -> NormalRateLimiter {
 /// The main API client without authentication
 #[cfg(feature = "http_client")]
 pub struct UnauthenticatedCVR {
-	user_agent: String,
+	config: ApiConfiguration,
 	http: Client,
 	http_rate_limiter: NormalRateLimiter,
 }
@@ -123,7 +179,7 @@ impl racal::reqwest::ApiClient<NoAuthentication> for UnauthenticatedCVR {
 
 /// The main API client with authentication
 pub struct AuthenticatedCVR {
-	user_agent: String,
+	config: ApiConfiguration,
 	auth: SavedLoginCredentials,
 	#[cfg(feature = "http_client")]
 	http: Client,
@@ -152,27 +208,25 @@ impl AuthenticatedCVR {
 	/// Creates an API client
 	#[cfg(feature = "http_client")]
 	fn http_client(
-		user_agent: &str, auth: &SavedLoginCredentials,
+		config: &ApiConfiguration, auth: &SavedLoginCredentials,
 	) -> Result<Client, ApiError> {
 		use serde::ser::Error;
 
 		let builder = Client::builder();
-		let mut headers = HeaderMap::new();
+		let mut headers = config.to_headers().map_err(|e| {
+			serde_json::Error::custom(
+				"Couldn't parse config into headers: ".to_string() + &e.to_string(),
+			)
+		})?;
+		headers.append(&mut auth.to_headers().map_err(|e| {
+			serde_json::Error::custom(
+				"Couldn't parse auth into headers: ".to_string() + &e.to_string(),
+			)
+		})?);
 
-		headers.insert(
-			"Username",
-			auth.username.parse().map_err(|_| {
-				serde_json::Error::custom("Couldn't turn username into a header")
-			})?,
-		);
-		headers.insert(
-			"AccessKey",
-			auth.access_key.parse().map_err(|_| {
-				serde_json::Error::custom("Couldn't turn access_key into a header")
-			})?,
-		);
+		let headers = HeaderMap::from_iter(headers);
 
-		Ok(builder.user_agent(user_agent).default_headers(headers).build()?)
+		Ok(builder.default_headers(headers).build()?)
 	}
 
 	/// Removes authentication to the API client
@@ -183,9 +237,9 @@ impl AuthenticatedCVR {
 	#[cfg(feature = "http_client")]
 	pub fn downgrade(self) -> Result<UnauthenticatedCVR, ApiError> {
 		Ok(UnauthenticatedCVR {
-			http: UnauthenticatedCVR::http_client(&self.user_agent)?,
+			http: UnauthenticatedCVR::http_client(&self.config.user_agent)?,
 			http_rate_limiter: self.http_rate_limiter,
-			user_agent: self.user_agent,
+			config: self.config,
 		})
 	}
 
@@ -195,18 +249,18 @@ impl AuthenticatedCVR {
 	///
 	/// If deserializing user agent into a header fails
 	pub fn new(
-		user_agent: String, auth: impl Into<SavedLoginCredentials> + Send,
+		config: ApiConfiguration, auth: impl Into<SavedLoginCredentials> + Send,
 	) -> Result<Self, ApiError> {
 		let auth = auth.into();
 		Ok(Self {
 			#[cfg(feature = "http_client")]
-			http: Self::http_client(&user_agent, &auth)?,
+			http: Self::http_client(&config, &auth)?,
 			#[cfg(feature = "http_client")]
 			http_rate_limiter: http_rate_limiter(),
 			#[cfg(feature = "ws_client")]
 			ws: tokio::sync::RwLock::new(None),
 			auth,
-			user_agent,
+			config,
 		})
 	}
 
@@ -226,8 +280,7 @@ impl AuthenticatedCVR {
 
 		#[cfg(feature = "http_client")]
 		self.http_rate_limiter.until_ready().await;
-		let client =
-			ws::Client::new(self.user_agent.clone(), self.auth.clone()).await?;
+		let client = ws::Client::new(&self.config, &self.auth).await?;
 		{
 			let mut lock = self.ws.write().await;
 			*lock = Some(client);
@@ -260,7 +313,8 @@ impl AuthenticatedCVR {
 	/// or if the WS connection wasn't already open and creating it failed.
 	#[cfg(feature = "ws_client")]
 	pub async fn send(
-		&self, requestable: impl crate::query::Requestable + Serialize + Send,
+		&self,
+		requestable: impl crate::query::Requestable + serde::ser::Serialize + Send,
 	) -> Result<(), ApiError> {
 		{
 			let lock = self.ws.read().await;
@@ -271,8 +325,7 @@ impl AuthenticatedCVR {
 
 		#[cfg(feature = "http_client")]
 		self.http_rate_limiter.until_ready().await;
-		let client =
-			ws::Client::new(self.user_agent.clone(), self.auth.clone()).await?;
+		let client = ws::Client::new(&self.config, &self.auth).await?;
 		let mut lock = self.ws.write().await;
 		*lock = Some(client);
 		let lock = lock.downgrade();
@@ -299,8 +352,7 @@ impl AuthenticatedCVR {
 
 		#[cfg(feature = "http_client")]
 		self.http_rate_limiter.until_ready().await;
-		let client =
-			ws::Client::new(self.user_agent.clone(), self.auth.clone()).await?;
+		let client = ws::Client::new(&self.config, &self.auth).await?;
 		let mut lock = self.ws.write().await;
 		*lock = Some(client);
 		let lock = lock.downgrade();
@@ -313,9 +365,9 @@ impl AuthenticatedCVR {
 	}
 }
 
+#[cfg(feature = "http_client")]
 impl UnauthenticatedCVR {
 	/// Creates an unauthenticated API client
-	#[cfg(feature = "http_client")]
 	fn http_client(user_agent: &str) -> Result<Client, ApiError> {
 		Ok(Client::builder().user_agent(user_agent).build()?)
 	}
@@ -330,15 +382,12 @@ impl UnauthenticatedCVR {
 	) -> Result<AuthenticatedCVR, ApiError> {
 		let auth = auth.into();
 		Ok(AuthenticatedCVR {
-			#[cfg(feature = "http_client")]
-			http: AuthenticatedCVR::http_client(&self.user_agent, &auth)?,
-			#[cfg(feature = "http_client")]
+			http: AuthenticatedCVR::http_client(&self.config, &auth)?,
 			http_rate_limiter: self.http_rate_limiter,
 			#[cfg(feature = "ws_client")]
 			ws: tokio::sync::RwLock::new(None),
-			#[cfg(feature = "ws_client")]
 			auth,
-			user_agent: self.user_agent,
+			config: self.config,
 		})
 	}
 
@@ -348,12 +397,11 @@ impl UnauthenticatedCVR {
 	///
 	/// If deserializing user agent into a header fails,
 	/// or if WS API is enabled & the connection establishment fails.
-	#[cfg(feature = "http_client")]
-	pub fn new(user_agent: String) -> Result<Self, ApiError> {
+	pub fn new(config: ApiConfiguration) -> Result<Self, ApiError> {
 		Ok(Self {
-			http: Self::http_client(&user_agent)?,
+			http: Self::http_client(&config.user_agent)?,
 			http_rate_limiter: http_rate_limiter(),
-			user_agent,
+			config,
 		})
 	}
 }

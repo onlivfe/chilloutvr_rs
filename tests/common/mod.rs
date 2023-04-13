@@ -2,7 +2,7 @@
 // Something's funky with checking if these are used or not.
 #![allow(dead_code)]
 use chilloutvr::{
-	api_client::AuthenticatedCVR,
+	api_client::{ApiConfiguration, AuthenticatedCVR},
 	model::{ResponseDataWrapper, UserAuth},
 	query::SavedLoginCredentials,
 };
@@ -34,7 +34,7 @@ pub static USER_AUTH: Lazy<UserAuth> = Lazy::new(|| {
 
 pub fn api_client() -> AuthenticatedCVR {
 	AuthenticatedCVR::new(
-		USER_AGENT.to_owned(),
+		ApiConfiguration::new(USER_AGENT.to_owned()),
 		SavedLoginCredentials::from(&USER_AUTH.clone().into()),
 	)
 	.unwrap()

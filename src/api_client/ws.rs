@@ -1,9 +1,9 @@
-use http::{HeaderName, HeaderValue};
+use async_trait::async_trait;
 use serde::Serialize;
 use tokio::{sync::mpsc::UnboundedSender, task::JoinHandle};
 use tokio_stream::wrappers::UnboundedReceiverStream;
 
-use super::ApiError;
+use super::{ApiConfiguration, ApiError};
 use crate::{model::WsResponse, query::SavedLoginCredentials};
 
 type WsListenItem = Result<WsResponse, ApiError>;
@@ -28,7 +28,7 @@ impl InternalClientExt {
 		self.received_sender.send(res).ok();
 	}
 }
-#[async_trait::async_trait]
+#[async_trait]
 impl ezsockets::ClientExt for InternalClientExt {
 	type Call = ();
 
@@ -53,35 +53,25 @@ impl ezsockets::ClientExt for InternalClientExt {
 
 impl Client {
 	pub async fn new(
-		user_agent: String, auth: SavedLoginCredentials,
+		config: &ApiConfiguration, auth: &SavedLoginCredentials,
 	) -> Result<Self, ApiError> {
 		use serde::ser::Error;
 
-		let ua_header_name: HeaderName = http::header::USER_AGENT;
-		let ua_header_value: HeaderValue =
-			HeaderValue::try_from(user_agent.clone()).map_err(|_| {
-				serde_json::Error::custom("Failed to turn user agent into a header")
-			})?;
+		let mut headers = config.to_headers().map_err(|e| {
+			serde_json::Error::custom(
+				"Couldn't parse config into headers: ".to_string() + &e.to_string(),
+			)
+		})?;
+		headers.append(&mut auth.to_headers().map_err(|e| {
+			serde_json::Error::custom(
+				"Couldn't parse auth into headers: ".to_string() + &e.to_string(),
+			)
+		})?);
 
-		let (username, access_key) = (auth.username, auth.access_key);
-		let username_header_name: HeaderName =
-			HeaderName::try_from("Username").unwrap();
-		let username_header_value: HeaderValue = HeaderValue::try_from(username)
-			.map_err(|_| {
-				serde_json::Error::custom("Failed to turn access key into a header")
-			})?;
-
-		let auth_header_name: HeaderName =
-			HeaderName::try_from("AccessKey").unwrap();
-		let auth_header_value: HeaderValue = HeaderValue::try_from(access_key)
-			.map_err(|_| {
-				serde_json::Error::custom("Failed to turn access key into a header")
-			})?;
-
-		let ws_config = ezsockets::ClientConfig::new(crate::API_V1_WS_URL)
-			.header(ua_header_name, ua_header_value)
-			.header(username_header_name, username_header_value)
-			.header(auth_header_name, auth_header_value);
+		let mut ws_config = ezsockets::ClientConfig::new(crate::API_V1_WS_URL);
+		for (header_name, header_value) in headers {
+			ws_config = ws_config.header(header_name, header_value);
+		}
 
 		let (received_sender, received_receiver) =
 			tokio::sync::mpsc::unbounded_channel::<WsListenItem>();

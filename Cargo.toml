@@ -25,11 +25,11 @@ default = ["http", "ws"]
 
 # Enable models that relate are used in HTTP requests
 http = ["racal"]
-http_client = ["http", "reqwest", "racal/reqwest", "governor", "async-trait"]
+http_client = ["http", "dep:http", "reqwest", "racal/reqwest", "governor", "async-trait"]
 
 # Enable models that are used in WS requests
 ws = []
-ws_client = ["ws", "tokio", "ezsockets", "tokio-stream", "dep:http", "tokio-tungstenite"]
+ws_client = ["ws", "tokio", "ezsockets", "tokio-stream", "dep:http", "tokio-tungstenite", "async-trait"]
 
 # By default we allows deserializing some things partially even with errors.
 # Like skipping array entries with errors, which is not wanted for tests though.
