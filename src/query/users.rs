@@ -97,6 +97,15 @@ pub enum AuthType {
 	LoginCredentials(SavedLoginCredentials),
 }
 
+impl From<LoginCredentials> for AuthType {
+	fn from(value: LoginCredentials) -> Self { Self::LoginProfile(value) }
+}
+impl From<SavedLoginCredentials> for AuthType {
+	fn from(value: SavedLoginCredentials) -> Self {
+		Self::LoginCredentials(value)
+	}
+}
+
 #[cfg(feature = "http")]
 impl Queryable<NoAuthentication, ResponseDataWrapper<UserAuth>> for AuthType {
 	fn url(&self, _: &NoAuthentication) -> String {
