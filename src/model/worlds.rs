@@ -8,6 +8,18 @@ use crate::model::{AssetBaseWithTags, UserBase};
 #[cfg(feature = "http")]
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
+/// Details of the world that include player count
+pub struct WorldListItem {
+	#[serde(flatten)]
+	/// The base details of the world asset
+	pub base: crate::model::AssetBase,
+	/// How many players are in instances of the world
+	pub player_count: u32,
+}
+
+#[cfg(feature = "http")]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
 /// Details about a world
 pub struct WorldDetails {
 	#[serde(flatten)]

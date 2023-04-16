@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 
 #[cfg(feature = "http")]
 use crate::{
-	model::{ResponseDataWrapper, WorldDetailsResponse, WorldInstance},
+	model::{ResponseDataWrapper, WorldDetailsResponse, WorldListItem},
 	query::NoAuthentication,
 };
 
@@ -29,13 +29,12 @@ impl Queryable<NoAuthentication, ResponseDataWrapper<WorldDetailsResponse>>
 #[cfg(feature = "http")]
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize, Serialize)]
 pub struct WorldListQuery {
-	// TODO: Enum-ify
-	/// The category of the worlds to list in
-	pub category: String,
+	/// The category of the worlds to list
+	pub category: crate::id::Category,
 }
 
 #[cfg(feature = "http")]
-impl Queryable<NoAuthentication, ResponseDataWrapper<Vec<WorldInstance>>>
+impl Queryable<NoAuthentication, ResponseDataWrapper<Vec<WorldListItem>>>
 	for WorldListQuery
 {
 	fn url(&self, _: &NoAuthentication) -> String {

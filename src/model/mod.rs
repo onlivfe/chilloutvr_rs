@@ -24,6 +24,9 @@ pub use assets::*;
 mod searches;
 pub use searches::*;
 
+mod categories;
+pub use categories::*;
+
 /// Seems like a lot if not all of the API calls are wrapped
 /// in a generic data/message struct.
 #[cfg(any(feature = "http"))]

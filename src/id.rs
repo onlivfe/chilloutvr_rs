@@ -123,6 +123,10 @@ add_id!(User);
 add_id!(Instance);
 add_id!(Invite);
 add_id!(Asset);
+add_id!(
+	/// These IDs are plain, unlike others which seem to be UUIDs.
+	Category
+);
 add_id!(File);
 
 /// Any of the CVR IDs
@@ -150,6 +154,8 @@ pub enum Any {
 	Invite(Invite),
 	/// A file's ID
 	File(File),
+	/// A category's ID
+	Category(Category),
 }
 
 #[cfg(any(feature = "http", feature = "ws"))]
@@ -163,6 +169,7 @@ impl AsRef<str> for Any {
 			Self::Asset(v) => v.as_ref(),
 			Self::Invite(v) => v.as_ref(),
 			Self::File(v) => v.as_ref(),
+			Self::Category(v) => v.as_ref(),
 		}
 	}
 }

@@ -5,6 +5,8 @@
 
 use serde::{Deserialize, Serialize};
 
+mod categories;
+pub use categories::*;
 mod friends;
 pub use friends::*;
 mod instances;

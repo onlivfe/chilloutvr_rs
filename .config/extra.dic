@@ -36,3 +36,4 @@ enums
 serde
 HTTPS
 WSS
+UUIDs
