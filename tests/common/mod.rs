@@ -8,7 +8,7 @@ use chilloutvr::{
 };
 use once_cell::sync::Lazy;
 
-const USER_AGENT: &str = concat!(
+pub const USER_AGENT: &str = concat!(
 	env!("CARGO_PKG_NAME"),
 	env!("CARGO_PKG_VERSION"),
 	" (",

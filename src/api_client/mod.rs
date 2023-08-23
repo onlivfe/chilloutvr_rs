@@ -173,7 +173,7 @@ impl racal::reqwest::ApiClient<NoAuthentication> for UnauthenticatedCVR {
 		&self, req: RequestBuilder,
 	) -> Result<RequestBuilder, racal::reqwest::ApiError> {
 		self.http_rate_limiter.until_ready().await;
-		Ok(req)
+		Ok(req.header("Content-Type", "application/json"))
 	}
 }
 

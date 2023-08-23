@@ -115,6 +115,10 @@ impl Queryable<NoAuthentication, ResponseDataWrapper<UserAuth>> for AuthType {
 	fn body(&self, _: &NoAuthentication) -> Option<serde_json::Result<Vec<u8>>> {
 		Some(serde_json::to_vec(self))
 	}
+
+	fn method(&self, _state: &NoAuthentication) -> racal::RequestMethod {
+		racal::RequestMethod::Post
+	}
 }
 
 /// Adds an user to the blocked users list
