@@ -2,13 +2,13 @@
 // Something's funky with checking if these are used or not.
 #![allow(dead_code)]
 use chilloutvr::{
-	api_client::{ApiConfiguration, AuthenticatedCVR},
+	api_client::{ApiConfiguration, AuthenticatedCVR, UnauthenticatedCVR},
 	model::{ResponseDataWrapper, UserAuth},
 	query::SavedLoginCredentials,
 };
 use once_cell::sync::Lazy;
 
-pub const USER_AGENT: &str = concat!(
+const USER_AGENT: &str = concat!(
 	env!("CARGO_PKG_NAME"),
 	env!("CARGO_PKG_VERSION"),
 	" (",
@@ -36,6 +36,13 @@ pub fn api_client() -> AuthenticatedCVR {
 	AuthenticatedCVR::new(
 		ApiConfiguration::new(USER_AGENT.to_owned()),
 		SavedLoginCredentials::from(&USER_AUTH.clone().into()),
+	)
+	.unwrap()
+}
+
+pub fn unauthenticated_api_client() -> UnauthenticatedCVR {
+	UnauthenticatedCVR::new(
+		ApiConfiguration::new(USER_AGENT.to_owned())
 	)
 	.unwrap()
 }
