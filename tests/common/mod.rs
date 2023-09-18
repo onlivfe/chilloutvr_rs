@@ -2,7 +2,7 @@
 // Something's funky with checking if these are used or not.
 #![allow(dead_code)]
 use chilloutvr::{
-	api_client::{ApiConfiguration, AuthenticatedCVR},
+	api_client::{ApiConfiguration, AuthenticatedCVR, UnauthenticatedCVR},
 	model::{ResponseDataWrapper, UserAuth},
 	query::SavedLoginCredentials,
 };
@@ -36,6 +36,13 @@ pub fn api_client() -> AuthenticatedCVR {
 	AuthenticatedCVR::new(
 		ApiConfiguration::new(USER_AGENT.to_owned()),
 		SavedLoginCredentials::from(&USER_AUTH.clone().into()),
+	)
+	.unwrap()
+}
+
+pub fn unauthenticated_api_client() -> UnauthenticatedCVR {
+	UnauthenticatedCVR::new(
+		ApiConfiguration::new(USER_AGENT.to_owned())
 	)
 	.unwrap()
 }
