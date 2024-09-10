@@ -70,7 +70,9 @@ impl Client {
 
 		let mut ws_config = ezsockets::ClientConfig::new(crate::API_V1_WS_URL);
 		for (header_name, header_value) in headers {
-			ws_config = ws_config.header(header_name, header_value);
+			// TODO: Remove as_* once ezsockets updates the http to >1
+			ws_config =
+				ws_config.header(header_name.as_str(), header_value.as_bytes());
 		}
 
 		let (received_sender, received_receiver) =
@@ -86,7 +88,8 @@ impl Client {
 			future.await.unwrap();
 		});
 
-		internal_client.call(());
+		// TODO: See if this can be removed?
+		internal_client.call(()).ok();
 
 		let ws_client = Self {
 			internal_client,
@@ -112,7 +115,10 @@ impl Client {
 			data: requestable,
 		};
 		let data = serde_json::to_vec(&data)?;
-		self.internal_client.binary(data);
+		self
+			.internal_client
+			.binary(data)
+			.map_err(|e| ApiError::WebSocket(Box::new(e)))?;
 
 		Ok(())
 	}

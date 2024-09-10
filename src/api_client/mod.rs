@@ -15,8 +15,8 @@
 //!
 //! 2. [`chilloutvr::query::SavedLoginCredentials`](crate::model::SavedLoginCredentials)
 //!
-//! > Requires the `Username` and `AccessKey` headers
-//! in addition to the rate limiting.
+//! > Requires the `Username` and `AccessKey` headers in addition to the rate
+//! > limiting.
 //!
 //! The WebSocket API client is more messy, in this implementation the
 //! connection is opened lazily (on first use) and never manually closed again
@@ -213,11 +213,12 @@ impl AuthenticatedCVR {
 		use serde::ser::Error;
 
 		let builder = Client::builder();
-		let mut headers = config.to_headers().map_err(|e| {
-			serde_json::Error::custom(
-				"Couldn't parse config into headers: ".to_string() + &e.to_string(),
-			)
-		})?;
+		let mut headers: Vec<(HeaderName, HeaderValue)> =
+			config.to_headers().map_err(|e| {
+				serde_json::Error::custom(
+					"Couldn't parse config into headers: ".to_string() + &e.to_string(),
+				)
+			})?;
 		headers.append(&mut auth.to_headers().map_err(|e| {
 			serde_json::Error::custom(
 				"Couldn't parse auth into headers: ".to_string() + &e.to_string(),

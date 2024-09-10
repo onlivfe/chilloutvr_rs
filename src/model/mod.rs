@@ -50,7 +50,7 @@ pub struct ResponseDataWrapper<T> {
 	Eq,
 	strum::Display,
 	strum::AsRefStr,
-	strum::EnumVariantNames,
+	strum::VariantNames,
 )]
 #[non_exhaustive]
 /// The actual response data of an incoming WebSocket message

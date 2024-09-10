@@ -51,7 +51,7 @@ impl racal::FromApiState<Self> for SavedLoginCredentials {
 	Serialize,
 	strum::Display,
 	strum::AsRefStr,
-	strum::EnumVariantNames,
+	strum::VariantNames,
 )]
 #[non_exhaustive]
 #[allow(missing_docs)]
