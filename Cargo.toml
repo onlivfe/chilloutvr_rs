@@ -18,7 +18,7 @@ maintenance = { status = "experimental" }
 [lib]
 name = "chilloutvr"
 path = "src/lib.rs"
-crate_type = ["lib", "dylib"]
+crate-type = ["lib", "dylib"]
 
 [features]
 

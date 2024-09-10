@@ -41,8 +41,5 @@ pub fn api_client() -> AuthenticatedCVR {
 }
 
 pub fn unauthenticated_api_client() -> UnauthenticatedCVR {
-	UnauthenticatedCVR::new(
-		ApiConfiguration::new(USER_AGENT.to_owned())
-	)
-	.unwrap()
+	UnauthenticatedCVR::new(ApiConfiguration::new(USER_AGENT.to_owned())).unwrap()
 }

@@ -12,16 +12,16 @@ mod common;
 async fn login() -> Result<(), ApiError> {
 	let client = common::unauthenticated_api_client();
 
-/*
-example credentials file:
+	/*
+	example credentials file:
 
-{
-    "auth_type": "loginProfile",
-    "username": "example@example.com",
-    "password": "hunter2"
-}
+	{
+			"auth_type": "loginProfile",
+			"username": "example@example.com",
+			"password": "hunter2"
+	}
 
-*/
+	*/
 
 	let credentials = serde_json::from_slice::<AuthType>(
 		&std::fs::read("user-credentials.json").expect(
