@@ -366,6 +366,24 @@ impl AuthenticatedCVR {
 				.listen(),
 		)
 	}
+
+	/// Removes the authentication from the API client
+	///
+	/// # Errors
+	///
+	/// If locking fails
+	pub async fn downgrade(self) -> Result<UnauthenticatedCVR, ApiError> {
+		{
+			let mut lock = self.ws.write().await;
+			*lock = None;
+		}
+		let http = UnauthenticatedCVR::http_client(&self.config.user_agent)?;
+		Ok(UnauthenticatedCVR {
+			config: self.config,
+			http,
+			http_rate_limiter: self.http_rate_limiter,
+		})
+	}
 }
 
 #[cfg(feature = "http_client")]
