@@ -1,6 +1,6 @@
 //! Models of the API responses to queries.
 
-use serde::{de::Error, Deserialize, Serialize};
+use serde::{Deserialize, Serialize, de::Error};
 use serde_with::serde_as;
 
 mod invites;

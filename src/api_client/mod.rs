@@ -27,17 +27,17 @@ use std::num::NonZeroU32;
 
 #[cfg(feature = "http_client")]
 use governor::{
+	Quota,
+	RateLimiter,
 	clock::DefaultClock,
 	middleware::NoOpMiddleware,
 	state::{InMemoryState, NotKeyed},
-	Quota,
-	RateLimiter,
 };
-use http::{header::InvalidHeaderValue, HeaderName, HeaderValue};
+use http::{HeaderName, HeaderValue, header::InvalidHeaderValue};
 #[cfg(feature = "http_client")]
 pub use racal::reqwest::ApiClient;
 #[cfg(feature = "http_client")]
-use reqwest::{header::HeaderMap, Client, RequestBuilder};
+use reqwest::{Client, RequestBuilder, header::HeaderMap};
 
 #[cfg(feature = "http_client")]
 use crate::query::NoAuthentication;
