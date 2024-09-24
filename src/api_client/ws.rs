@@ -13,7 +13,7 @@ pub type ReceiverContainer =
 pub struct Client {
 	receive: ReceiverContainer,
 	handle: JoinHandle<()>,
-	internal_client: ezsockets::Client<InternalClientExt>,
+	internal: ezsockets::Client<InternalClientExt>,
 }
 
 struct InternalClientExt {
@@ -92,7 +92,7 @@ impl Client {
 		internal_client.call(()).ok();
 
 		let ws_client = Self {
-			internal_client,
+			internal: internal_client,
 			handle,
 			receive: std::sync::Arc::new(tokio::sync::Mutex::new(
 				UnboundedReceiverStream::from(received_receiver),
@@ -115,10 +115,7 @@ impl Client {
 			data: requestable,
 		};
 		let data = serde_json::to_vec(&data)?;
-		self
-			.internal_client
-			.binary(data)
-			.map_err(|e| ApiError::WebSocket(Box::new(e)))?;
+		self.internal.binary(data).map_err(|e| ApiError::WebSocket(Box::new(e)))?;
 
 		Ok(())
 	}

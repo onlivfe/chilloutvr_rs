@@ -29,7 +29,7 @@ pub use categories::*;
 
 /// Seems like a lot if not all of the API calls are wrapped
 /// in a generic data/message struct.
-#[cfg(any(feature = "http"))]
+#[cfg(feature = "http")]
 #[serde_as]
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
@@ -122,7 +122,7 @@ impl<'de> serde::Deserialize<'de> for WsResponseData {
 	}
 }
 
-#[cfg(any(feature = "http"))]
+#[cfg(feature = "http")]
 #[serde_as]
 #[derive(Debug, Clone, PartialEq, Eq, Deserialize)]
 #[serde(rename_all = "camelCase")]

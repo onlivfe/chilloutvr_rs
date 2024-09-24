@@ -234,21 +234,9 @@ impl AuthenticatedCVR {
 	///
 	/// # Errors
 	///
-	/// If deserializing user agent fails.
-	#[cfg(feature = "http_client")]
-	pub fn downgrade(self) -> Result<UnauthenticatedCVR, ApiError> {
-		Ok(UnauthenticatedCVR {
-			http: UnauthenticatedCVR::http_client(&self.config.user_agent)?,
-			http_rate_limiter: self.http_rate_limiter,
-			config: self.config,
-		})
-	}
-
-	/// Creates a new authenticated CVR API client
+	/// If deserializing user agent fails.# Panics
 	///
-	/// # Errors
-	///
-	/// If deserializing user agent into a header fails
+	/// If there's an internal programming error, aka should never panic.ails
 	pub fn new(
 		config: ApiConfiguration, auth: impl Into<SavedLoginCredentials> + Send,
 	) -> Result<Self, ApiError> {
@@ -306,12 +294,19 @@ impl AuthenticatedCVR {
 		lock.is_some()
 	}
 
+	// Clippy seems to be wrong, or at least haven't been able to figure out how
+	// this could be cleaned up more...
+	#[allow(clippy::significant_drop_tightening)]
 	/// Sends a WS message to the CVR API.
 	///
 	/// # Errors
 	///
 	/// If something with the request failed,
 	/// or if the WS connection wasn't already open and creating it failed.
+	///
+	/// # Panics
+	///
+	/// If there's an internal programming error, aka should never panic.
 	#[cfg(feature = "ws_client")]
 	pub async fn send(
 		&self,
@@ -336,12 +331,19 @@ impl AuthenticatedCVR {
 			.send(requestable)
 	}
 
+	// Clippy seems to be wrong, or at least haven't been able to figure out how
+	// this could be cleaned up more...
+	#[allow(clippy::significant_drop_tightening)]
 	/// Listens to events from the WS connection
 	///
 	/// # Errors
 	///
 	/// If creating the client fails,
 	/// or if the WS connection wasn't already open and creating it failed.
+	///
+	/// # Panics
+	///
+	/// If there's an internal programming error, aka should never panic.
 	#[cfg(feature = "ws_client")]
 	pub async fn listen(&self) -> Result<ws::ReceiverContainer, ApiError> {
 		{

@@ -64,7 +64,7 @@ impl std::fmt::Debug for SavedLoginCredentials {
 	fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
 		f.debug_struct("SavedLoginCredentials")
 			.field("username", &self.username)
-			.field("token", &"*****")
+			.field("access_key", &"*****")
 			.finish()
 	}
 }
