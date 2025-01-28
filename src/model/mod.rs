@@ -42,6 +42,8 @@ pub struct ResponseDataWrapper<T> {
 	pub data: T,
 }
 
+// Can't use typetag, see https://github.com/dtolnay/typetag/issues/70
+
 #[cfg(feature = "ws")]
 #[derive(
 	Debug,
